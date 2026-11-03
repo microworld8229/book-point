@@ -228,25 +228,102 @@
   }
 
   // ── S1. 메인 대시보드 ─────────────────────────────────────────
+  const SPINE_COLORS = ['#e76f51', '#2a9d8f', '#e9a93b', '#457b9d', '#8ab17d', '#b5838d', '#264653', '#f4a261'];
+
+  // 독서카페에서 읽기 → 포인트 → 지역화폐 → 동네서점에서 새 책
+  function heroArt() {
+    const books = [[20, 22], [30, 18], [39, 24], [50, 20], [60, 23], [72, 17], [81, 22], [92, 19], [102, 24], [113, 20], [123, 22], [134, 18]]
+      .map(([x, h], i) => `<rect x="${x}" y="${52 - h}" width="${i % 3 ? 9 : 10}" height="${h}" rx="1.5" fill="${SPINE_COLORS[i % SPINE_COLORS.length]}"/>`).join('');
+    const books2 = [[22, 19], [32, 23], [44, 17], [53, 21], [118, 20], [128, 24], [139, 18]]
+      .map(([x, h], i) => `<rect x="${x}" y="${80 - h}" width="9" height="${h}" rx="1.5" fill="${SPINE_COLORS[(i + 3) % SPINE_COLORS.length]}"/>`).join('');
+    return `
+    <svg class="hero-art" viewBox="0 0 360 150" role="img" aria-label="부대 독서카페에서 책을 읽고, 포인트를 지역화폐로 바꿔 동네서점에서 새 책을 사는 그림">
+      <rect x="0" y="142" width="360" height="2" fill="rgba(255,255,255,.3)"/>
+      <!-- 부대 독서카페 -->
+      <rect x="8" y="16" width="152" height="126" rx="12" fill="#fbf3e4"/>
+      ${books}<rect x="14" y="52" width="140" height="4" rx="2" fill="#c49a6c"/>
+      ${books2}<rect x="14" y="80" width="40" height="4" rx="2" fill="#c49a6c"/><rect x="114" y="80" width="40" height="4" rx="2" fill="#c49a6c"/>
+      <rect x="47" y="6" width="74" height="19" rx="9.5" fill="#8b5e3c"/>
+      <text x="84" y="19.5" text-anchor="middle" font-size="10.5" font-weight="700" fill="#fff">부대 독서카페</text>
+      <path d="M66 114 Q66 94 84 94 Q102 94 102 114 Z" fill="#5d7f45"/>
+      <circle cx="84" cy="83" r="11" fill="#f2c9a0"/>
+      <path d="M72.5 81 Q84 64 95.5 81 Z" fill="#4f6d3a"/>
+      <rect x="71" y="79" width="22" height="3.5" rx="1.75" fill="#3d5a2c"/>
+      <path d="M79 87 h3 M86 87 h3" stroke="#6b4a32" stroke-width="1.4" stroke-linecap="round"/>
+      <path d="M68 104 Q76 99 84 104 L84 113 Q76 108 68 113 Z" fill="#fff"/>
+      <path d="M100 104 Q92 99 84 104 L84 113 Q92 108 100 113 Z" fill="#eef2ee"/>
+      <circle cx="69" cy="109" r="3" fill="#f2c9a0"/><circle cx="99" cy="109" r="3" fill="#f2c9a0"/>
+      <rect x="28" y="113" width="112" height="7" rx="3" fill="#8b5e3c"/>
+      <rect x="38" y="120" width="5" height="22" fill="#7a5134"/><rect x="125" y="120" width="5" height="22" fill="#7a5134"/>
+      <rect x="114" y="101" width="12" height="12" rx="2.5" fill="#fff"/>
+      <path d="M126 104 a3.5 3.5 0 0 1 0 7" stroke="#fff" stroke-width="2" fill="none"/>
+      <path d="M117 98 q2 -3 0 -6 M122 98 q2 -3 0 -6" stroke="#c9b8a0" stroke-width="1.3" fill="none" stroke-linecap="round"/>
+      <path d="M22 142 v-14 M18 132 q4 -10 8 0" stroke="#5d7f45" stroke-width="3" fill="none" stroke-linecap="round"/>
+      <!-- 포인트 → 지역화폐 -->
+      <path d="M164 74 H184" stroke="#fff" stroke-width="2.5" stroke-dasharray="4 4" stroke-linecap="round"/>
+      <path d="M182 69 l6 5 -6 5" stroke="#fff" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+      <circle cx="212" cy="66" r="17" fill="#e0ad2a"/>
+      <circle cx="207" cy="60" r="17" fill="#f6c445" stroke="#d9a400" stroke-width="3"/>
+      <text x="207" y="66" text-anchor="middle" font-size="17" font-weight="800" fill="#8a6400">P</text>
+      <text x="230" y="40" font-size="10" font-weight="700" fill="#ffe08a">+100P</text>
+      <path d="M207 82 V92" stroke="#fff" stroke-width="2.5" stroke-dasharray="3 3" stroke-linecap="round"/>
+      <g transform="rotate(-8 210 112)">
+        <rect x="188" y="97" width="46" height="30" rx="5" fill="#3a86ff"/>
+        <rect x="193" y="103" width="9" height="6" rx="1.5" fill="#ffe08a"/>
+        <text x="211" y="121" text-anchor="middle" font-size="8" font-weight="700" fill="#fff">지역화폐</text>
+      </g>
+      <path d="M238 112 H252" stroke="#fff" stroke-width="2.5" stroke-dasharray="4 4" stroke-linecap="round"/>
+      <path d="M250 107 l6 5 -6 5" stroke="#fff" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+      <!-- 동네서점 -->
+      <text x="309" y="31" text-anchor="middle" font-size="10.5" font-weight="700" fill="#fff">동네서점</text>
+      <rect x="262" y="48" width="94" height="94" rx="4" fill="#fff"/>
+      ${[0, 1, 2, 3, 4].map((i) => `<rect x="${258 + i * 20.4}" y="37" width="20.4" height="16" fill="${i % 2 ? '#fff' : '#e76f51'}"/><circle cx="${268.2 + i * 20.4}" cy="53" r="10.2" fill="${i % 2 ? '#fff' : '#e76f51'}"/>`).join('')}
+      <rect x="270" y="74" width="46" height="34" rx="3" fill="#dcecf7"/>
+      ${[[274, 14], [281, 18], [288, 12], [295, 16], [302, 18], [309, 13]].map(([x, h], i) => `<rect x="${x}" y="${104 - h}" width="5.5" height="${h}" fill="${SPINE_COLORS[(i + 1) % SPINE_COLORS.length]}"/>`).join('')}
+      <rect x="324" y="86" width="24" height="56" rx="2" fill="#8b5e3c"/>
+      <circle cx="343" cy="115" r="1.8" fill="#f6c445"/>
+      <path d="M274 142 v-18 h14 v18" fill="#2a9d8f"/><path d="M277 124 q4 -7 8 0" stroke="#264653" stroke-width="1.6" fill="none"/>
+      <path d="M150 12 l1.5 3.5 3.5 1.5 -3.5 1.5 -1.5 3.5 -1.5 -3.5 -3.5 -1.5 3.5 -1.5 z M244 60 l1 2.5 2.5 1 -2.5 1 -1 2.5 -1 -2.5 -2.5 -1 2.5 -1 z" fill="#ffe08a"/>
+    </svg>`;
+  }
+
   async function viewHome(seq) {
     render(`${topbar('책읽는 장병')}<div class="loading">불러오는 중...</div>`);
     const d = await api('GET', '/api/dashboard');
     if (seq !== renderSeq) return;
     const [y, m] = d.month.split('-');
     const pct = Math.min(100, Math.round((d.me.approved / d.me.monthlyLimit) * 100));
+    // 이번 달 어디까지 왔는지: 0 읽기 → 1 일지 제출 → 2 포인트 적립 → 3 지역화폐로 새 책
+    const stage = d.me.approved > 0 ? 3 : d.me.submitted > 0 || d.me.pending > 0 ? 2 : 1;
+    const steps = [['📖', '독서카페에서<br>읽기'], ['✍️', '독서일지<br>제출'], ['🪙', '포인트<br>적립'], ['🛍️', '지역화폐로<br>새 책 구매']];
+    const stageNote = [
+      '',
+      '책을 다 읽었다면 독서일지를 써 보세요. 승인되면 1건당 100P가 쌓입니다.',
+      '일지가 관리자 확인을 기다리고 있어요. 승인되면 포인트가 쌓입니다.',
+      '월말에 승인 명단이 지자체에 전달되면, 지자체 앱에서 지역화폐로 받아 동네서점에서 새 책을 살 수 있어요.',
+    ][stage];
     render(`
       ${topbar('책읽는 장병', { right: `<button class="link-btn" data-go="#/password">비밀번호</button><button class="link-btn" data-logout>로그아웃</button>` })}
       ${me.mustChangePw ? '<div class="notice warn">임시 비밀번호를 사용 중입니다. <a href="#/password">비밀번호 변경하기 ›</a></div>' : ''}
-      <p style="margin:0 0 12px;font-size:17px"><b>${esc(me.displayName)}</b>님, 오늘도 한 권 어때요?</p>
 
-      <section class="card point-card">
-        <h2>나의 적립 예정 포인트 <small>${Number(m)}월</small></h2>
-        <div class="point-grid">
-          <div><div class="label">이번 달</div><div class="value">${num(d.me.monthPoints)}<span>P</span></div></div>
-          <div><div class="label">누적</div><div class="value">${num(d.me.totalPoints)}<span>P</span></div></div>
-        </div>
-        <p class="point-note">※ 승인 기준 적립 예정 포인트입니다. 지자체 실제 적립은 지자체 앱에서 확인하세요.</p>
+      <section class="hero-card">
+        <p class="greet"><b>${esc(me.displayName)}</b>님, 오늘은 독서카페에서 한 권 어때요?</p>
+        <p class="tagline">읽은 책이 지역화폐가 되고, 지역화폐가 다시 새 책이 됩니다</p>
+        ${heroArt()}
+        <ol class="journey">
+          ${steps.map(([ic, t], i) => `<li class="step ${i < stage ? 'done' : i === stage ? 'next' : ''}"><span class="ic">${ic}</span>${t}</li>`).join('')}
+        </ol>
+        <p class="journey-note">${stageNote}</p>
       </section>
+
+      <section class="money-card" aria-label="나의 적립 예정 포인트">
+        <div class="mc-top"><span class="mc-brand">📖 BOOK POINT</span><span class="mc-tag">지역화폐 전환 예정</span></div>
+        <div class="mc-chip"></div>
+        <div class="mc-label">${Number(m)}월 적립 예정</div>
+        <div class="mc-amount">${num(d.me.monthPoints)}<span>P</span></div>
+        <div class="mc-bottom"><span>누적 ${num(d.me.totalPoints)}P</span><span>${esc(me.displayName)}</span></div>
+      </section>
+      <p class="mc-note">※ 승인 기준 적립 예정 포인트입니다. 지자체 실제 적립은 지자체 앱에서 확인하세요.</p>
 
       <section class="card">
         <h2>나의 독서활동 <small>${y}년 ${Number(m)}월</small></h2>
@@ -274,14 +351,14 @@
       </section>
 
       <section class="card">
-        <h2>이번 달 부대 독서 현황</h2>
+        <h2>☕ 이번 달 부대 독서카페 현황</h2>
         <div class="stat-row three">
           <div><div class="num">${num(d.unit.approved)}</div><div class="lbl">승인 일지</div></div>
           <div><div class="num">${num(d.unit.participants)}</div><div class="lbl">참여 장병</div></div>
           <div><div class="num">${num(d.unit.approved * meta.points)}</div><div class="lbl">적립 예정 P</div></div>
         </div>
-        ${d.unit.recentBooks.length ? `<div style="margin-top:14px;font-size:13px;color:var(--muted)">최근 승인된 책</div>
-          <ol class="book-list">${d.unit.recentBooks.map((t) => `<li>${esc(t)}</li>`).join('')}</ol>` : ''}
+        ${d.unit.recentBooks.length ? `<div class="shelf-title">최근 승인된 책</div>
+          <div class="shelf">${d.unit.recentBooks.map((t, i) => `<span class="spine" title="${esc(t)}" style="background:${SPINE_COLORS[i % SPINE_COLORS.length]};height:${[118, 104, 124, 98, 112][i % 5]}px">${esc(t)}</span>`).join('')}<span class="shelf-deco">🪴</span></div>` : ''}
       </section>
 
       <div class="bottom-bar"><div class="inner">

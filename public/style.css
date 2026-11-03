@@ -2,7 +2,7 @@
   --green: #2f5d3a;
   --green-dark: #22452b;
   --green-soft: #e7f0e9;
-  --bg: #f3f5f2;
+  --bg: #f5f2ec;
   --card: #ffffff;
   --text: #1d231f;
   --muted: #6b746e;
@@ -54,13 +54,64 @@ button, input, select, textarea { font: inherit; color: inherit; }
 .card h2 { margin: 0 0 12px; font-size: 15px; font-weight: 700; display: flex; align-items: center; justify-content: space-between; }
 .card h2 small { font-weight: 400; color: var(--muted); font-size: 13px; }
 
-.point-card { background: linear-gradient(135deg, var(--green) 0%, #3f7a4d 100%); color: #fff; }
-.point-card h2 small { color: rgba(255,255,255,.75); }
-.point-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-.point-grid .label { font-size: 13px; opacity: .85; }
-.point-grid .value { font-size: 26px; font-weight: 800; letter-spacing: -0.5px; }
-.point-grid .value span { font-size: 15px; font-weight: 600; margin-left: 2px; }
-.point-note { margin: 12px 0 0; font-size: 12px; opacity: .8; }
+/* 메인: 독서 순환 히어로 */
+.hero-card {
+  background: linear-gradient(160deg, #2f5d3a 0%, #4c8a5c 100%); color: #fff;
+  border-radius: 18px; padding: 16px 14px 14px; margin-bottom: 12px; overflow: hidden;
+  box-shadow: 0 6px 18px rgba(47,93,58,.22);
+}
+.hero-card .greet { margin: 0; font-size: 16px; }
+.hero-card .tagline { margin: 2px 0 10px; font-size: 13px; opacity: .85; }
+.hero-art { display: block; width: 100%; height: auto; }
+.journey { list-style: none; margin: 12px 0 0; padding: 0; display: grid; grid-template-columns: repeat(4, 1fr); }
+.journey .step { position: relative; text-align: center; font-size: 11.5px; line-height: 1.3; opacity: .55; }
+.journey .step .ic {
+  position: relative; z-index: 1; display: grid; place-items: center; width: 38px; height: 38px; margin: 0 auto 5px;
+  border-radius: 50%; background: rgba(255,255,255,.15); border: 2px solid transparent; font-size: 18px;
+}
+.journey .step:not(:last-child)::after {
+  content: ''; position: absolute; top: 19px; left: calc(50% + 21px); right: calc(-50% + 21px);
+  height: 2px; background: rgba(255,255,255,.3);
+}
+.journey .step.done { opacity: 1; }
+.journey .step.done .ic { background: #fff; }
+.journey .step.done:not(:last-child)::after { background: #fff; }
+.journey .step.next { opacity: 1; font-weight: 700; }
+.journey .step.next .ic { background: rgba(246,196,69,.28); border-color: #f6c445; animation: pulse 1.8s ease-in-out infinite; }
+@keyframes pulse { 0%, 100% { box-shadow: 0 0 0 0 rgba(246,196,69,.55); } 50% { box-shadow: 0 0 0 7px rgba(246,196,69,0); } }
+.journey-note { margin: 12px 0 0; padding: 9px 11px; border-radius: 10px; background: rgba(0,0,0,.14); font-size: 12.5px; }
+
+/* 메인: 지역화폐 카드 모양 포인트 */
+.money-card {
+  position: relative; overflow: hidden; margin-bottom: 6px; padding: 16px 18px; border-radius: 18px; color: #fff;
+  background: linear-gradient(135deg, #1f3b2a 0%, #2d5a3d 55%, #a8843a 140%);
+  box-shadow: 0 6px 16px rgba(31,59,42,.25);
+}
+.money-card::before, .money-card::after { content: ''; position: absolute; border-radius: 50%; background: rgba(255,255,255,.06); }
+.money-card::before { width: 180px; height: 180px; right: -60px; top: -70px; }
+.money-card::after { width: 120px; height: 120px; right: 40px; bottom: -70px; }
+.mc-top { display: flex; justify-content: space-between; align-items: center; font-size: 12px; }
+.mc-brand { font-weight: 800; letter-spacing: 1px; }
+.mc-tag { padding: 2px 9px; border-radius: 99px; background: rgba(246,196,69,.2); color: #f6d58a; font-weight: 700; }
+.mc-chip { width: 34px; height: 25px; margin: 14px 0 8px; border-radius: 5px; background: linear-gradient(135deg, #f6d58a, #c9a24a); }
+.mc-label { font-size: 12px; opacity: .8; }
+.mc-amount { font-size: 32px; font-weight: 800; letter-spacing: -0.5px; line-height: 1.2; }
+.mc-amount span { margin-left: 3px; font-size: 17px; }
+.mc-bottom { display: flex; justify-content: space-between; margin-top: 8px; font-size: 12px; opacity: .85; }
+.mc-note { margin: 0 4px 12px; font-size: 12px; color: var(--muted); }
+
+/* 메인: 독서카페 책장 */
+.shelf-title { margin-top: 16px; font-size: 13px; color: var(--muted); }
+.shelf {
+  display: flex; align-items: flex-end; gap: 5px; height: 132px; margin-top: 8px; padding: 0 8px;
+  border-bottom: 8px solid #c49a6c; border-radius: 0 0 3px 3px;
+}
+.spine {
+  width: 38px; overflow: hidden; padding: 8px 0; border-radius: 4px 4px 1px 1px;
+  writing-mode: vertical-rl; line-height: 38px; white-space: nowrap; text-overflow: ellipsis;
+  color: #fff; font-size: 12px; font-weight: 700; box-shadow: inset -4px 0 0 rgba(0,0,0,.12);
+}
+.shelf-deco { margin-left: auto; font-size: 30px; line-height: 1; }
 
 .stat-row { display: grid; grid-template-columns: repeat(4, 1fr); text-align: center; gap: 4px; }
 .stat-row .num { font-size: 20px; font-weight: 700; }
@@ -84,8 +135,6 @@ button, input, select, textarea { font: inherit; color: inherit; }
 .rank-list li.me { background: var(--green-soft); margin: 0 -8px; padding: 9px 8px; border-radius: 8px; }
 .my-rank { margin-top: 10px; padding: 10px 12px; background: var(--green-soft); border-radius: 10px; font-size: 14px; text-align: center; }
 
-.book-list { margin: 10px 0 0; padding-left: 18px; color: var(--text); }
-.book-list li { padding: 2px 0; }
 
 .empty { color: var(--muted); text-align: center; padding: 18px 0; font-size: 14px; }
 
