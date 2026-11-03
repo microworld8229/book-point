@@ -126,6 +126,9 @@ const SCHEMA = `
     is_sample      INTEGER NOT NULL DEFAULT 0     -- 샘플 장병 (엑셀 명단 제외)
   );
 
+  -- 장병이 로그인 화면에서 보낸 비밀번호 초기화 요청 시각 (관리자가 초기화하면 비움)
+  ALTER TABLE users ADD COLUMN IF NOT EXISTS reset_requested_at TEXT;
+
   CREATE TABLE IF NOT EXISTS books (
     code  TEXT PRIMARY KEY,
     title TEXT NOT NULL

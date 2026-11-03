@@ -247,12 +247,14 @@
           <input class="input" id="pw" name="password" type="password" autocomplete="current-password" required>
         </div>
         <button class="btn block" type="submit">로그인</button>
-        <p class="center-link" style="margin-bottom:0">비밀번호를 잊으셨나요?<br>관리자에게 초기화를 요청하세요.</p>
+        <button class="btn ghost block" type="button" id="reset-req" style="margin-top:8px">🔑 비밀번호를 잊으셨나요? <u>비밀번호 초기화 요청</u></button>
       </form>
       <p class="center-link">처음이신가요? <a href="#/signup">가입하기</a></p>
       <a class="guide-link" href="#/guide">📘 처음 오셨나요? <b>이용 안내 보기</b> ›</a>
     `);
     const form = root.querySelector('#login');
+    formatPhoneInput(form.id);
+    root.querySelector('#reset-req').onclick = () => openResetRequest(form.id.value);
     form.onsubmit = (e) => {
       e.preventDefault();
       submitting(form.querySelector('button'), async () => {
@@ -275,10 +277,47 @@
       </ul>
     </details>`;
 
+  // 숫자만 입력해도 010-1234-5678 형식으로 '-'가 자동으로 들어간다 (영문이 섞이면 관리자 ID로 보고 그대로 둔다)
+  const hyphenPhone = (v) => {
+    const d = v.replace(/\D/g, '').slice(0, 11);
+    if (d.length > 7) return `${d.slice(0, 3)}-${d.slice(3, 7)}-${d.slice(7)}`;
+    return d.length > 3 ? `${d.slice(0, 3)}-${d.slice(3)}` : d;
+  };
   function formatPhoneInput(input) {
     input.addEventListener('input', () => {
-      const d = input.value.replace(/\D/g, '').slice(0, 11);
-      input.value = d.length > 7 ? `${d.slice(0, 3)}-${d.slice(3, 7)}-${d.slice(7)}` : d.length > 3 ? `${d.slice(0, 3)}-${d.slice(3)}` : d;
+      if (/[^0-9\-\s]/.test(input.value)) return;
+      input.value = hyphenPhone(input.value);
+    });
+  }
+
+  // 로그인 화면: 비밀번호 초기화 요청 → 관리자 화면에 표시되고, 관리자가 임시 비밀번호를 발급해 전달한다
+  function openResetRequest(phone = '') {
+    openModal(`
+      <h3>비밀번호 초기화 요청</h3>
+      <p style="margin:0 0 14px;font-size:14px;color:var(--muted)">가입할 때 입력한 정보를 넣으면 관리자에게 요청이 전달됩니다. 관리자가 확인 후 <b>임시 비밀번호</b>를 알려 드립니다.</p>
+      <form id="reset-form">
+        <div class="field"><label for="rp">휴대폰 번호</label>
+          <input class="input" id="rp" name="phone" inputmode="tel" placeholder="010-0000-0000" value="${esc(/^[0-9\-\s]*$/.test(phone) ? hyphenPhone(phone) : '')}" required></div>
+        <div class="field"><label for="rn">이름</label>
+          <input class="input" id="rn" name="name" autocomplete="name" required maxlength="20"></div>
+        <div class="field"><label for="rb">생년월일</label>
+          <input class="input" id="rb" name="birth" type="date" required></div>
+        <div class="buttons">
+          <button type="button" class="btn secondary" data-cancel>취소</button>
+          <button type="submit" class="btn">요청 보내기</button>
+        </div>
+      </form>
+    `, (m) => {
+      const f = m.querySelector('#reset-form');
+      formatPhoneInput(f.phone);
+      m.querySelector('[data-cancel]').onclick = closeModal;
+      f.onsubmit = (e) => {
+        e.preventDefault();
+        submitting(f.querySelector('button[type=submit]'), async () => {
+          await api('POST', '/api/password-reset-request', formData(f));
+          await alertModal('요청 완료', '비밀번호 초기화 요청을 보냈습니다.<br>관리자가 확인 후 <b>임시 비밀번호</b>를 알려 드립니다.<br><small style="color:var(--muted)">임시 비밀번호로 로그인하면 새 비밀번호로 바꾸라는 안내가 나옵니다.</small>');
+        });
+      };
     });
   }
 
@@ -434,6 +473,9 @@
     `);
   }
 
+  // 경기도 "천권으로 독서포인트" (실제 적립·전환 확인, 지역화폐 등록)
+  const CHEONGWON_URL = 'https://www.library.kr/bookpoint/main/homemain';
+
   // 독서 배지: 누적 승인 권수 기준 (복무 중 100권 목표)
   const BADGES = [[1, '🌱', '첫 권'], [10, '📗', '10권'], [30, '🎖️', '30권'], [50, '🏅', '50권'], [100, '🏆', '100권']];
   const READING_GOAL = 100;
@@ -559,6 +601,13 @@
         <div class="mc-bottom"><span>누적 ${num(d.me.totalPoints)}P</span><span>${esc(me.displayName)}</span></div>
       </section>
       <p class="mc-note">※ 승인 기준 적립 예정 포인트입니다. 지자체 실제 적립은 지자체 앱에서 확인하세요.</p>
+
+      <a class="ext-card" href="${CHEONGWON_URL}" target="_blank" rel="noopener noreferrer">
+        <span class="ext-ic">🍁</span>
+        <span class="ext-body"><b>천권으로 독서포인트 바로가기</b>
+          <small>경기도 공식 사이트 · 실제 적립·지역화폐 전환 확인</small></span>
+        <span class="ext-arrow">↗</span>
+      </a>
 
       <nav class="quick-menu">
         <button data-go="#/write"><span>✍️</span>일지 쓰기</button>
@@ -801,6 +850,7 @@
 
     const root = render(`
       ${adminHeader('#/admin')}
+      ${d.resetRequests ? `<div class="notice warn">🔑 비밀번호 초기화 요청 <b>${d.resetRequests}건</b>이 있습니다. <a href="#/admin/soldiers">장병 관리에서 처리하기 ›</a></div>` : ''}
       ${d.journals.length ? `
         <div class="select-all">
           <label><input type="checkbox" id="all"> 전체 선택</label>
@@ -975,7 +1025,7 @@
       const real = soldiers.filter((s) => !s.isSample).length;
       list.innerHTML = `<h2>가입 장병 <small>${real}명${soldiers.length > real ? ` (+샘플 ${soldiers.length - real}명)` : ''}</small></h2>` + (soldiers.length ? soldiers.map((s) => `
         <div class="soldier-row">
-          <div><div><b>${esc(s.rank)} ${esc(s.name)}</b>${s.isSample ? ' <span class="sample-tag">샘플</span>' : ''}</div><div class="sub">${esc(s.phone)} · 가입 ${fmtDate(s.createdAt)}</div></div>
+          <div><div><b>${esc(s.rank)} ${esc(s.name)}</b>${s.isSample ? ' <span class="sample-tag">샘플</span>' : ''}${s.resetRequestedAt ? ' <span class="badge rejected">초기화 요청</span>' : ''}</div><div class="sub">${esc(s.phone)} · ${s.resetRequestedAt ? `요청 ${fmtDateTime(s.resetRequestedAt)}` : `가입 ${fmtDate(s.createdAt)}`}</div></div>
           ${s.isSample ? '' : `<div class="row-actions">
             <button class="btn secondary small" data-reset="${s.id}" data-name="${esc(s.rank)} ${esc(s.name)}">비밀번호 초기화</button>
             ${s.sampleJournals ? `<span class="sample-tag">체험 기록 ${s.sampleJournals}건</span>`

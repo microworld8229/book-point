@@ -118,6 +118,17 @@ button, input, select, textarea { font: inherit; color: inherit; }
 .notice-banner .t { flex: 1; min-width: 0; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; font-size: 14px; }
 .notice-banner .arrow { color: var(--muted); }
 
+/* 메인: 경기도 천권으로 독서포인트 바로가기 */
+.ext-card {
+  display: flex; align-items: center; gap: 12px; margin-bottom: 12px; padding: 14px 16px; border-radius: 14px;
+  background: linear-gradient(135deg, #fff4e0, #ffe4c2); border: 1px solid #f3c58b; color: #6b3410; text-decoration: none;
+  box-shadow: 0 1px 2px rgba(0,0,0,.04);
+}
+.ext-card .ext-ic { font-size: 28px; line-height: 1; }
+.ext-card .ext-body { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; font-size: 15px; }
+.ext-card small { font-size: 12px; color: #8a5a32; }
+.ext-card .ext-arrow { font-size: 20px; font-weight: 700; }
+
 /* 메인: 바로가기 */
 .quick-menu { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 12px; }
 .quick-menu button {

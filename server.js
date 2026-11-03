@@ -242,6 +242,27 @@ app.post('/api/login', h(async (req, res) => {
   res.json({ user: meView(user) });
 }));
 
+// 비밀번호 초기화 요청: 휴대폰·이름·생년월일이 맞으면 관리자에게 요청이 표시된다.
+// 가입 여부가 드러나지 않도록 결과와 상관없이 같은 응답을 준다. 실제 초기화는 관리자가 한다(본인인증 없는 자동 재설정은 하지 않음).
+const resetAsks = new Map();
+app.post('/api/password-reset-request', h(async (req, res) => {
+  const phone = normalizePhone(req.body?.phone);
+  const name = String(req.body?.name ?? '').trim();
+  const birth = String(req.body?.birth ?? '').trim();
+  if (!/^01\d{8,9}$/.test(phone) || !name || !birth) fail(400, '휴대폰 번호, 이름, 생년월일을 모두 입력해 주세요.');
+  const rec = resetAsks.get(phone) || { count: 0, since: Date.now() };
+  if (Date.now() - rec.since > 10 * 60e3) { rec.count = 0; rec.since = Date.now(); }
+  rec.count++;
+  resetAsks.set(phone, rec);
+  if (rec.count > 3) fail(429, '요청이 너무 많습니다. 10분 후 다시 시도해 주세요.');
+  await db.query(
+    `UPDATE users SET reset_requested_at = $4
+     WHERE phone = $1 AND name = $2 AND birth = $3 AND role = 'soldier' AND is_sample = 0`,
+    [phone, name, birth, kstNow()]
+  );
+  res.json({ ok: true });
+}));
+
 app.post('/api/logout', (req, res) => {
   clearSession(res);
   res.json({ ok: true });
@@ -457,10 +478,12 @@ app.get('/api/admin/pending', auth, adminOnly, h(async (req, res) => {
      WHERE j.status = 'pending' ORDER BY j.submitted_at ASC, j.id ASC`,
     [dateOf(now), monthOf(now)]
   );
+  const resets = await db.get("SELECT COUNT(*)::int AS n FROM users WHERE reset_requested_at IS NOT NULL AND role = 'soldier'");
   res.json({
     today: dateOf(now),
     dailyLimit: DAILY_LIMIT,
     monthlyLimit: MONTHLY_LIMIT,
+    resetRequests: resets.n,
     journals: rows.map((r) => ({
       ...journalView(r),
       userId: r.user_id,
@@ -538,17 +561,17 @@ app.get('/api/admin/soldiers', auth, adminOnly, h(async (req, res) => {
   const q = String(req.query.q ?? '').trim();
   const digits = normalizePhone(q);
   const rows = await db.all(
-    `SELECT u.id, u.name, u.rank, u.phone, u.created_at, u.is_sample,
+    `SELECT u.id, u.name, u.rank, u.phone, u.created_at, u.is_sample, u.reset_requested_at,
        (SELECT COUNT(*)::int FROM journals j WHERE j.user_id = u.id AND j.is_sample = 1) AS sample_journals
      FROM users u
      WHERE u.role = 'soldier' AND ($1::text = '' OR u.name LIKE $2 OR ($3::text <> '' AND u.phone LIKE $4))
-     ORDER BY u.is_sample, u.name LIMIT 200`,
+     ORDER BY (u.reset_requested_at IS NULL), u.is_sample, u.name LIMIT 200`,
     [q, `%${q}%`, digits, `%${digits}%`]
   );
   res.json({
     soldiers: rows.map((r) => ({
       id: r.id, name: r.name, rank: r.rank, phone: r.is_sample ? '샘플 계정' : formatPhone(r.phone),
-      createdAt: r.created_at, isSample: !!r.is_sample, sampleJournals: r.sample_journals,
+      createdAt: r.created_at, isSample: !!r.is_sample, sampleJournals: r.sample_journals, resetRequestedAt: r.reset_requested_at,
     })),
   });
 }));
@@ -564,7 +587,7 @@ app.post('/api/admin/soldiers/:id/reset-password', auth, adminOnly, h(async (req
   // 헷갈리는 문자(0/O, 1/l/I)를 뺀 8자리 임시 비밀번호
   const alphabet = 'abcdefghjkmnpqrstuvwxyz23456789';
   const temp = Array.from(crypto.randomBytes(8), (b) => alphabet[b % alphabet.length]).join('');
-  await db.query('UPDATE users SET password_hash = $1, must_change_pw = 1, token_version = token_version + 1 WHERE id = $2',
+  await db.query('UPDATE users SET password_hash = $1, must_change_pw = 1, token_version = token_version + 1, reset_requested_at = NULL WHERE id = $2',
     [hashPassword(temp), user.id]);
   res.json({ tempPassword: temp, displayName: displayName(user) });
 }));
