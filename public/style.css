@@ -251,6 +251,21 @@ details.terms li { margin-bottom: 6px; }
 .hero .logo { font-size: 52px; }
 .hero h1 { margin: 8px 0 4px; font-size: 26px; color: var(--green-dark); }
 .hero p { margin: 0; color: var(--muted); font-size: 14px; }
+/* 로그인 웹툰 */
+.hero.webtoon { padding: 20px 0 18px; }
+.comic-wrap {
+  position: relative; padding: 8px 6px 6px; border: 2.5px solid #1d1d1d; border-radius: 14px;
+  background: #fff; box-shadow: 5px 5px 0 #1d1d1d; transform: rotate(-1deg);
+}
+.login-comic { display: block; width: 100%; height: auto; }
+.login-comic .cm-t { font-family: 'Jua', 'Malgun Gothic', sans-serif; font-size: 10px; fill: #1d1d1d; }
+.login-comic .cm-g { font-family: 'Jua', 'Malgun Gothic', sans-serif; font-size: 9px; fill: #1d1d1d; }
+.login-comic .cm-c { font-family: 'Jua', 'Malgun Gothic', sans-serif; font-size: 10px; fill: #1d1d1d; }
+.login-comic .cm-coin { font-family: 'Jua', 'Malgun Gothic', sans-serif; fill: #8a6400; }
+.login-comic .cm-up { font-family: 'Jua', 'Malgun Gothic', sans-serif; font-size: 15px; fill: #e63946; stroke: #1d1d1d; stroke-width: .8; text-anchor: middle; }
+.logo-title { margin: 22px 0 4px !important; font-family: 'Jua', 'Malgun Gothic', sans-serif; font-weight: 400; font-size: 32px !important; letter-spacing: -0.5px; }
+.logo-title span { font-size: 28px; }
+.hero.webtoon p b { color: var(--green-dark); }
 .center-link { text-align: center; margin-top: 16px; font-size: 14px; color: var(--muted); }
 .center-link a { color: var(--green); font-weight: 700; }
 

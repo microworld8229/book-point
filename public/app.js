@@ -103,12 +103,139 @@
   }
 
   // ── S0. 로그인 / 가입 ─────────────────────────────────────────
+  // 로그인 웹툰: 지친 일과 후 → 독서카페에서 책에 빠짐 → 복무 의지 MAX
+  const INK = '#1d1d1d';
+  // face: tired | wow | happy | smile, pose: none | read | salute | cheer, s: 크기 배율
+  function comicSoldier(cx, cy, face, pose = 'none', s = 1) {
+    return `<g transform="translate(${cx} ${cy}) scale(${s}) translate(${-cx} ${-cy})">${soldierBody(cx, cy, face, pose)}</g>`;
+  }
+
+  function soldierBody(cx, cy, mood, pose) {
+    const skin = '#f6d2b0';
+    const face = {
+      tired: `<path d="M${cx - 11} ${cy + 3} h7 M${cx + 4} ${cy + 3} h7" stroke="${INK}" stroke-width="2" stroke-linecap="round"/>
+        <path d="M${cx - 10} ${cy + 7} q3 2 6 0 M${cx + 5} ${cy + 7} q3 2 6 0" stroke="#9aa3ad" stroke-width="1.2" fill="none"/>
+        <path d="M${cx - 6} ${cy + 13} q3 -2.5 6 0 q3 2.5 6 0" stroke="${INK}" stroke-width="1.8" fill="none" stroke-linecap="round"/>
+        <path d="M${cx + 19} ${cy - 6} q4 6 0 9 q-4 -3 0 -9 z" fill="#8fd3ff" stroke="${INK}" stroke-width="1.2"/>`,
+      wow: `<circle cx="${cx - 7}" cy="${cy + 3}" r="3.6" fill="${INK}"/><circle cx="${cx + 7}" cy="${cy + 3}" r="3.6" fill="${INK}"/>
+        <circle cx="${cx - 6}" cy="${cy + 1.8}" r="1.3" fill="#fff"/><circle cx="${cx + 8}" cy="${cy + 1.8}" r="1.3" fill="#fff"/>
+        <path d="M${cx - 11} ${cy - 4} q4 -3 8 -1 M${cx + 3} ${cy - 5} q4 -2 8 1" stroke="${INK}" stroke-width="1.6" fill="none" stroke-linecap="round"/>
+        <ellipse cx="${cx}" cy="${cy + 12}" rx="3" ry="3.6" fill="#b0413e" stroke="${INK}" stroke-width="1.4"/>`,
+      happy: `<path d="M${cx - 11} ${cy + 4} q3.5 -6 7 0 M${cx + 4} ${cy + 4} q3.5 -6 7 0" stroke="${INK}" stroke-width="2.2" fill="none" stroke-linecap="round"/>
+        <path d="M${cx - 8} ${cy + 9} q8 11 16 0 z" fill="#b0413e" stroke="${INK}" stroke-width="1.6" stroke-linejoin="round"/>
+        <ellipse cx="${cx - 13}" cy="${cy + 9}" rx="3.5" ry="2" fill="#ff9aa2" opacity=".8"/><ellipse cx="${cx + 13}" cy="${cy + 9}" rx="3.5" ry="2" fill="#ff9aa2" opacity=".8"/>`,
+      smile: `<path d="M${cx - 11} ${cy + 5} q3.5 3 7 0 M${cx + 4} ${cy + 5} q3.5 3 7 0" stroke="${INK}" stroke-width="2" fill="none" stroke-linecap="round"/>
+        <path d="M${cx - 4} ${cy + 11} q4 4 8 0" stroke="${INK}" stroke-width="1.8" fill="none" stroke-linecap="round"/>
+        <ellipse cx="${cx - 13}" cy="${cy + 9}" rx="3.5" ry="2" fill="#ff9aa2" opacity=".8"/><ellipse cx="${cx + 13}" cy="${cy + 9}" rx="3.5" ry="2" fill="#ff9aa2" opacity=".8"/>`,
+    }[mood];
+    const book = (x, y) => `<path d="M${x - 15} ${y} L${x} ${y - 4} L${x + 15} ${y} L${x + 15} ${y + 14} L${x} ${y + 10} L${x - 15} ${y + 14} Z" fill="#c0392b" stroke="${INK}" stroke-width="1.8" stroke-linejoin="round"/>
+      <path d="M${x - 13} ${y + 1} L${x} ${y - 2} L${x} ${y + 9} L${x - 13} ${y + 12} Z M${x + 13} ${y + 1} L${x} ${y - 2} L${x} ${y + 9} L${x + 13} ${y + 12} Z" fill="#fffdf5" stroke="${INK}" stroke-width="1.2"/>`;
+    const sleeve = (d) => `<path d="${d}" stroke="${INK}" stroke-width="9" fill="none" stroke-linecap="round"/><path d="${d}" stroke="url(#camo2)" stroke-width="6" fill="none" stroke-linecap="round"/>`;
+    const arms = {
+      none: '',
+      read: `${book(cx, cy + 30)}<circle cx="${cx - 15}" cy="${cy + 38}" r="4" fill="${skin}" stroke="${INK}" stroke-width="1.5"/><circle cx="${cx + 15}" cy="${cy + 38}" r="4" fill="${skin}" stroke="${INK}" stroke-width="1.5"/>`,
+      cheer: `${sleeve(`M${cx - 17} ${cy + 26} Q${cx - 34} ${cy + 8} ${cx - 30} ${cy - 14}`)}
+        <circle cx="${cx - 30}" cy="${cy - 18}" r="5.5" fill="${skin}" stroke="${INK}" stroke-width="1.6"/>
+        <g transform="rotate(10 ${cx + 24} ${cy + 36})"><rect x="${cx + 17}" y="${cy + 24}" width="14" height="20" rx="1.5" fill="#e9a93b" stroke="${INK}" stroke-width="1.8"/><path d="M${cx + 20} ${cy + 24} v20" stroke="${INK}" stroke-width="1"/></g>`,
+      salute: `<path d="M${cx + 16} ${cy + 26} Q${cx + 30} ${cy + 6} ${cx + 15} ${cy - 10}" stroke="${INK}" stroke-width="9" fill="none" stroke-linecap="round"/>
+        <path d="M${cx + 16} ${cy + 26} Q${cx + 30} ${cy + 6} ${cx + 15} ${cy - 10}" stroke="url(#camo2)" stroke-width="6" fill="none" stroke-linecap="round"/>
+        <path d="M${cx + 8} ${cy - 12} l10 -4 l2 5 l-10 3 z" fill="${skin}" stroke="${INK}" stroke-width="1.5" stroke-linejoin="round"/>
+        <g transform="rotate(-12 ${cx - 22} ${cy + 36})"><rect x="${cx - 30}" y="${cy + 24}" width="14" height="20" rx="1.5" fill="#2a9d8f" stroke="${INK}" stroke-width="1.8"/><path d="M${cx - 27} ${cy + 24} v20" stroke="${INK}" stroke-width="1"/></g>`,
+    }[pose];
+    return `
+      <path d="M${cx - 19} ${cy + 18} Q${cx - 24} ${cy + 40} ${cx - 23} ${cy + 60} H${cx + 23} Q${cx + 24} ${cy + 40} ${cx + 19} ${cy + 18} Z" fill="url(#camo2)" stroke="${INK}" stroke-width="2" stroke-linejoin="round"/>
+      <rect x="${cx + 3}" y="${cy + 26}" width="12" height="4" fill="#fff" stroke="${INK}" stroke-width="1"/>
+      <rect x="${cx - 15}" y="${cy + 26}" width="9" height="6" fill="#111"/><path d="M${cx - 13.5} ${cy + 28} h6 M${cx - 13.5} ${cy + 30} h6" stroke="#e9c46a" stroke-width="1"/>
+      <circle cx="${cx}" cy="${cy}" r="21" fill="${skin}" stroke="${INK}" stroke-width="2.2"/>
+      <path d="M${cx - 21.5} ${cy - 3} Q${cx - 22} ${cy - 25} ${cx} ${cy - 25} Q${cx + 22} ${cy - 25} ${cx + 21.5} ${cy - 3} Z" fill="url(#camo2)" stroke="${INK}" stroke-width="2.2" stroke-linejoin="round"/>
+      <rect x="${cx - 24}" y="${cy - 6}" width="48" height="5.5" rx="2.75" fill="#3b4529" stroke="${INK}" stroke-width="1.8"/>
+      ${face}${arms}`;
+  }
+
+  function loginComic() {
+    // 세 컷: 위 2칸(172×136) + 아래 넓은 1칸(348×136)
+    const W = 172;
+    const H = 136;
+    const panel = (x, y, bg, inner, w = W) => `<g><clipPath id="p${x}-${y}"><rect x="${x}" y="${y}" width="${w}" height="${H}" rx="5"/></clipPath>
+      <g clip-path="url(#p${x}-${y})">${bg}${inner}</g><rect x="${x}" y="${y}" width="${w}" height="${H}" rx="5" fill="none" stroke="${INK}" stroke-width="2.6"/></g>`;
+    const caption = (x, y, n, t) => `<rect x="${x + 5}" y="${y + 5}" width="${18 + t.length * 9}" height="16" fill="#ffe14d" stroke="${INK}" stroke-width="1.4"/>
+      <text x="${x + 10}" y="${y + 17}" class="cm-c">${n} ${t}</text>`;
+    const bubble = (x, y, w, lines, tailX) => `
+      <path d="M${x + 8} ${y} H${x + w - 8} Q${x + w} ${y} ${x + w} ${y + 8} V${y + lines.length * 12 + 2} Q${x + w} ${y + lines.length * 12 + 10} ${x + w - 8} ${y + lines.length * 12 + 10}
+        H${tailX + 6} L${tailX - 2} ${y + lines.length * 12 + 18} L${tailX - 2} ${y + lines.length * 12 + 10} H${x + 8} Q${x} ${y + lines.length * 12 + 10} ${x} ${y + lines.length * 12 + 2} V${y + 8} Q${x} ${y} ${x + 8} ${y} Z"
+        fill="#fff" stroke="${INK}" stroke-width="1.8" stroke-linejoin="round"/>
+      ${lines.map((l, i) => `<text x="${x + w / 2}" y="${y + 15 + i * 12}" text-anchor="middle" class="cm-t">${l}</text>`).join('')}`;
+    // 복무 의지 게이지 (칸 오른쪽 아래)
+    const gauge = (x, y, pct, color, label, w = W) => `
+      <rect x="${x + w - 90}" y="${y + 112}" width="84" height="17" rx="8.5" fill="#fff" stroke="${INK}" stroke-width="1.6"/>
+      <rect x="${x + w - 88}" y="${y + 114}" width="${Math.max(8, 80 * pct)}" height="13" rx="6.5" fill="${color}"/>
+      <text x="${x + w - 48}" y="${y + 124.5}" text-anchor="middle" class="cm-g">복무 의지 ${label}</text>`;
+    const rays = (cx, cy) => Array.from({ length: 12 }, (_, i) => {
+      const a = (i * Math.PI) / 6;
+      const b = a + Math.PI / 12;
+      return `<path d="M${cx} ${cy} L${cx + 200 * Math.cos(a)} ${cy + 200 * Math.sin(a)} L${cx + 200 * Math.cos(b)} ${cy + 200 * Math.sin(b)} Z" fill="#ffe27a"/>`;
+    }).join('');
+    const coin = (x, y, r) => `<circle cx="${x}" cy="${y}" r="${r}" fill="#f6c445" stroke="${INK}" stroke-width="1.6"/><text x="${x}" y="${y + r * 0.42}" text-anchor="middle" class="cm-coin" style="font-size:${r * 1.2}px">P</text>`;
+    const shelfRow = (x, y, n, seed) => Array.from({ length: n }, (_, i) => `<rect x="${x + i * 7}" y="${y - 10 - ((i * 7 + seed) % 4)}" width="6" height="${10 + ((i * 7 + seed) % 4)}" fill="${SPINE_COLORS[(i + seed) % 8]}" stroke="${INK}" stroke-width=".7"/>`).join('')
+      + `<rect x="${x - 2}" y="${y}" width="${n * 7 + 3}" height="3" fill="#8b5e3c"/>`;
+    const spark = (x, y, s) => `<path d="M${x} ${y - s} L${x + s * 0.3} ${y - s * 0.3} L${x + s} ${y} L${x + s * 0.3} ${y + s * 0.3} L${x} ${y + s} L${x - s * 0.3} ${y + s * 0.3} L${x - s} ${y} L${x - s * 0.3} ${y - s * 0.3} Z" fill="#fff" stroke="${INK}" stroke-width="1.3" stroke-linejoin="round"/>`;
+    return `
+    <svg class="login-comic" viewBox="0 0 360 294" role="img" aria-label="세 컷 웹툰: 장병이 독서카페에서 책에 빠지고, 독서포인트가 지역화폐로 바뀌어, 외출 날 동네서점에서 지역화폐로 새 책을 사며 복무 의지가 최고로 높아지는 이야기">
+      <defs>
+        <pattern id="camo2" width="8" height="8" patternUnits="userSpaceOnUse">
+          <rect width="8" height="8" fill="#6b7a4b"/><rect width="3" height="3" fill="#4a5634"/><rect x="4" y="2" width="3" height="2" fill="#8c8a5c"/>
+          <rect x="1" y="5" width="3" height="3" fill="#3b4529"/><rect x="6" y="5" width="2" height="2" fill="#a39b6e"/>
+        </pattern>
+        <pattern id="dots" width="7" height="7" patternUnits="userSpaceOnUse"><circle cx="3.5" cy="3.5" r="1.3" fill="#f2c94c" opacity=".55"/></pattern>
+      </defs>
+      <!-- ① 독서카페: 책에 빠짐 -->
+      ${panel(6, 8, `<rect x="6" y="8" width="${W}" height="${H}" fill="#fff6d6"/><rect x="6" y="8" width="${W}" height="${H}" fill="url(#dots)"/>
+        ${shelfRow(92, 92, 11, 1)}`,
+        `${caption(6, 8, '①', '독서카페')}
+        ${comicSoldier(50, 86, 'wow', 'read')}
+        <text x="75" y="64" class="cm-up" style="font-size:20px">!</text>
+        ${bubble(84, 16, 88, ['어? 이 책', '완전 재밌는데?!'], 94)}
+        ${gauge(6, 8, 0.45, '#e9a93b', '45%')}`)}
+
+      <!-- ② 승인 → 포인트가 지역화폐로 -->
+      ${panel(182, 8, `<rect x="182" y="8" width="${W}" height="${H}" fill="#e3f4ea"/><rect x="182" y="8" width="${W}" height="${H}" fill="url(#dots)" opacity=".5"/>`,
+        `${caption(182, 8, '②', '포인트 적립')}
+        ${comicSoldier(220, 88, 'happy', 'none', 0.95)}
+        <g transform="rotate(-10 268 88)">
+          <rect x="252" y="61" width="32" height="54" rx="5" fill="#2b2f36" stroke="${INK}" stroke-width="1.8"/>
+          <rect x="255" y="66" width="26" height="42" rx="2" fill="#fff"/>
+          <text x="268" y="81" text-anchor="middle" class="cm-g" style="font-size:9.5px;fill:#2a9d8f">+100P</text>
+          <rect x="257" y="87" width="22" height="13" rx="2" fill="#3a86ff"/>
+          <text x="268" y="96.5" text-anchor="middle" class="cm-g" style="font-size:6px;fill:#fff">지역화폐</text>
+        </g>
+        <circle cx="253" cy="110" r="5" fill="#f6d2b0" stroke="${INK}" stroke-width="1.5"/>
+        ${coin(302, 72, 8)}${coin(322, 90, 6.5)}${coin(298, 104, 5.5)}
+        ${bubble(256, 14, 92, ['포인트가', '지역화폐로 짠!'], 280)}
+        ${gauge(182, 8, 0.75, '#8ab17d', '75%')}`)}
+
+      <!-- ③ 외출 날: 동네서점에서 지역화폐로 새 책 구매 (넓은 칸) -->
+      ${panel(6, 150, `<rect x="6" y="150" width="348" height="${H}" fill="#fff0b3"/>${rays(90, 232)}
+        ${shelfRow(240, 206, 14, 4)}${shelfRow(240, 232, 14, 6)}
+        <path d="M84 172 V180 M124 172 V180" stroke="${INK}" stroke-width="1.2"/>
+        <rect x="74" y="180" width="60" height="16" rx="3" fill="#8b5e3c" stroke="${INK}" stroke-width="1.4"/>
+        <text x="104" y="191.5" text-anchor="middle" class="cm-g" style="font-size:9.5px;fill:#fff">동네서점</text>`,
+        `${caption(6, 150, '③', '외출 날')}
+        ${spark(28, 206, 7)}${spark(160, 214, 6)}${spark(222, 182, 5)}
+        ${comicSoldier(90, 232, 'happy', 'salute', 1)}
+        <text x="146" y="264" class="cm-up" style="font-size:17px">UP!</text>
+        ${bubble(138, 158, 124, ['지역화폐로 새 책 득템!', '전역까지 100권!'], 150)}
+        <rect x="240" y="242" width="88" height="16" rx="8" fill="#3a86ff" stroke="${INK}" stroke-width="1.4"/>
+        <text x="284" y="253.5" text-anchor="middle" class="cm-g" style="font-size:9px;fill:#fff">지역화폐 결제 완료 ✓</text>
+        ${gauge(6, 150, 1, '#2a9d8f', 'MAX', 348)}`, 348)}
+    </svg>`;
+  }
+
   function viewLogin() {
     const root = render(`
-      <div class="hero">
-        <div class="logo">📖</div>
-        <h1>책읽는 장병</h1>
-        <p>읽은 책이 지역화폐가 됩니다</p>
+      <div class="hero webtoon">
+        <div class="comic-wrap">${loginComic()}</div>
+        <h1 class="logo-title"><span>📖</span> 책읽는 장병</h1>
+        <p>읽을수록 높아지는 <b>복무 의지</b>, 쌓일수록 늘어나는 <b>독서포인트</b></p>
       </div>
       <form class="card" id="login" autocomplete="on">
         <div class="field">
