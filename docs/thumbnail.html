@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="ko"><head><meta charset="utf-8">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Jua&display=swap">
+<style>
+  * { box-sizing: border-box; margin: 0; }
+  body { width: 1280px; height: 720px; overflow: hidden; font-family: 'Jua', 'Malgun Gothic', sans-serif; color: #fff;
+    background:
+      radial-gradient(ellipse 260px 140px at 8% 14%, rgba(0,0,0,.18), transparent 70%),
+      radial-gradient(ellipse 320px 160px at 46% 6%, rgba(160,150,100,.20), transparent 70%),
+      radial-gradient(ellipse 300px 150px at 30% 92%, rgba(0,0,0,.18), transparent 70%),
+      radial-gradient(ellipse 360px 150px at 88% 96%, rgba(160,150,100,.16), transparent 70%),
+      radial-gradient(ellipse 220px 120px at 60% 50%, rgba(0,0,0,.10), transparent 70%),
+      linear-gradient(150deg, #34401f 0%, #56663a 100%); }
+  .wrap { display: flex; align-items: center; height: 100%; padding: 0 44px 0 72px; gap: 40px; }
+  .left { flex: 0 0 620px; }
+  .badge { display: inline-block; padding: 8px 18px; border: 2px solid rgba(255,255,255,.55); border-radius: 999px; font-size: 22px; letter-spacing: .5px; }
+  h1 { margin-top: 26px; font-size: 92px; font-weight: 400; line-height: 1; letter-spacing: -2px; white-space: nowrap; text-shadow: 4px 4px 0 #1d1d1d; }
+  .tag { margin-top: 22px; font-size: 40px; color: #ffe08a; }
+  .steps { display: flex; align-items: center; gap: 8px; margin-top: 44px; font-size: 19px; }
+  .step { padding: 11px 15px; border-radius: 14px; background: rgba(255,255,255,.14); border: 2px solid rgba(255,255,255,.28); white-space: nowrap; }
+  .arrow { font-size: 22px; opacity: .8; }
+  .url { margin-top: 38px; font-size: 22px; opacity: .78; font-family: 'Malgun Gothic', sans-serif; }
+  .right { flex: 0 0 520px; }
+  .frame { padding: 12px 10px 8px; background: #fff; border: 4px solid #1d1d1d; border-radius: 22px; box-shadow: 10px 10px 0 #1d1d1d; transform: rotate(-2deg); }
+  .comic { display: block; width: 100%; height: auto; }
+  .comic .cm-t { font-family: 'Jua', sans-serif; font-size: 10px; fill: #1d1d1d; }
+  .comic .cm-g { font-family: 'Jua', sans-serif; font-size: 9px; fill: #1d1d1d; }
+  .comic .cm-c { font-family: 'Jua', sans-serif; font-size: 10px; fill: #1d1d1d; }
+  .comic .cm-coin { font-family: 'Jua', sans-serif; fill: #8a6400; }
+  .comic .cm-up { font-family: 'Jua', sans-serif; font-size: 15px; fill: #e63946; stroke: #1d1d1d; stroke-width: .8; text-anchor: middle; }
+</style></head>
+<body><div class="wrap">
+  <div class="left">
+    <div class="badge">📖 지상작전사령부 시범 운영</div>
+    <h1>장병 북포인트</h1>
+    <p class="tag">읽은 책이 지역화폐가 됩니다</p>
+    <div class="steps">
+      <span class="step">독서카페에서 읽고</span><span class="arrow">→</span>
+      <span class="step">일지 제출</span><span class="arrow">→</span>
+      <span class="step">지역화폐로 새 책</span>
+    </div>
+    <p class="url">book-point-beta.vercel.app</p>
+  </div>
+  <div class="right"><div class="frame">
+    <svg class="comic" viewBox="0 0 360 294" role="img" aria-label="세 컷 웹툰: 장병이 독서카페에서 책에 빠지고, 독서포인트가 지역화폐로 바뀌어, 외출 날 동네서점에서 지역화폐로 새 책을 사며 복무 의지가 최고로 높아지는 이야기">
+      <defs>
+        <pattern id="camo2" width="8" height="8" patternUnits="userSpaceOnUse">
+          <rect width="8" height="8" fill="#6b7a4b"/><rect width="3" height="3" fill="#4a5634"/><rect x="4" y="2" width="3" height="2" fill="#8c8a5c"/>
+          <rect x="1" y="5" width="3" height="3" fill="#3b4529"/><rect x="6" y="5" width="2" height="2" fill="#a39b6e"/>
+        </pattern>
+        <pattern id="dots" width="7" height="7" patternUnits="userSpaceOnUse"><circle cx="3.5" cy="3.5" r="1.3" fill="#f2c94c" opacity=".55"/></pattern>
+      </defs>
+      <!-- ① 독서카페: 책에 빠짐 -->
+      <g><clipPath id="p6-8"><rect x="6" y="8" width="172" height="136" rx="5"/></clipPath>
+      <g clip-path="url(#p6-8)"><rect x="6" y="8" width="172" height="136" fill="#fff6d6"/><rect x="6" y="8" width="172" height="136" fill="url(#dots)"/>
+        <rect x="92" y="81" width="6" height="11" fill="#2a9d8f" stroke="#1d1d1d" stroke-width=".7"/><rect x="99" y="82" width="6" height="10" fill="#e9a93b" stroke="#1d1d1d" stroke-width=".7"/><rect x="106" y="79" width="6" height="13" fill="#457b9d" stroke="#1d1d1d" stroke-width=".7"/><rect x="113" y="80" width="6" height="12" fill="#8ab17d" stroke="#1d1d1d" stroke-width=".7"/><rect x="120" y="81" width="6" height="11" fill="#b5838d" stroke="#1d1d1d" stroke-width=".7"/><rect x="127" y="82" width="6" height="10" fill="#264653" stroke="#1d1d1d" stroke-width=".7"/><rect x="134" y="79" width="6" height="13" fill="#f4a261" stroke="#1d1d1d" stroke-width=".7"/><rect x="141" y="80" width="6" height="12" fill="#e76f51" stroke="#1d1d1d" stroke-width=".7"/><rect x="148" y="81" width="6" height="11" fill="#2a9d8f" stroke="#1d1d1d" stroke-width=".7"/><rect x="155" y="82" width="6" height="10" fill="#e9a93b" stroke="#1d1d1d" stroke-width=".7"/><rect x="162" y="79" width="6" height="13" fill="#457b9d" stroke="#1d1d1d" stroke-width=".7"/><rect x="90" y="92" width="80" height="3" fill="#8b5e3c"/><rect x="11" y="13" width="54" height="16" fill="#ffe14d" stroke="#1d1d1d" stroke-width="1.4"/>
+      <text x="16" y="25" class="cm-c">① 독서카페</text>
+        <g transform="translate(50 86) scale(1) translate(-50 -86)">
+      <path d="M31 104 Q26 126 27 146 H73 Q74 126 69 104 Z" fill="url(#camo2)" stroke="#1d1d1d" stroke-width="2" stroke-linejoin="round"/>
+      <rect x="53" y="112" width="12" height="4" fill="#fff" stroke="#1d1d1d" stroke-width="1"/>
+      <rect x="35" y="112" width="9" height="6" fill="#111"/><path d="M36.5 114 h6 M36.5 116 h6" stroke="#e9c46a" stroke-width="1"/>
+      <circle cx="50" cy="86" r="21" fill="#f6d2b0" stroke="#1d1d1d" stroke-width="2.2"/>
+      <path d="M28.5 83 Q28 61 50 61 Q72 61 71.5 83 Z" fill="url(#camo2)" stroke="#1d1d1d" stroke-width="2.2" stroke-linejoin="round"/>
+      <rect x="26" y="80" width="48" height="5.5" rx="2.75" fill="#3b4529" stroke="#1d1d1d" stroke-width="1.8"/>
+      <circle cx="43" cy="89" r="3.6" fill="#1d1d1d"/><circle cx="57" cy="89" r="3.6" fill="#1d1d1d"/>
+        <circle cx="44" cy="87.8" r="1.3" fill="#fff"/><circle cx="58" cy="87.8" r="1.3" fill="#fff"/>
+        <path d="M39 82 q4 -3 8 -1 M53 81 q4 -2 8 1" stroke="#1d1d1d" stroke-width="1.6" fill="none" stroke-linecap="round"/>
+        <ellipse cx="50" cy="98" rx="3" ry="3.6" fill="#b0413e" stroke="#1d1d1d" stroke-width="1.4"/><path d="M35 116 L50 112 L65 116 L65 130 L50 126 L35 130 Z" fill="#c0392b" stroke="#1d1d1d" stroke-width="1.8" stroke-linejoin="round"/>
+      <path d="M37 117 L50 114 L50 125 L37 128 Z M63 117 L50 114 L50 125 L63 128 Z" fill="#fffdf5" stroke="#1d1d1d" stroke-width="1.2"/><circle cx="35" cy="124" r="4" fill="#f6d2b0" stroke="#1d1d1d" stroke-width="1.5"/><circle cx="65" cy="124" r="4" fill="#f6d2b0" stroke="#1d1d1d" stroke-width="1.5"/></g>
+        <text x="75" y="64" class="cm-up" style="font-size:20px">!</text>
+        
+      <path d="M92 16 H164 Q172 16 172 24 V42 Q172 50 164 50
+        H100 L92 58 L92 50 H92 Q84 50 84 42 V24 Q84 16 92 16 Z"
+        fill="#fff" stroke="#1d1d1d" stroke-width="1.8" stroke-linejoin="round"/>
+      <text x="128" y="31" text-anchor="middle" class="cm-t">어? 이 책</text><text x="128" y="43" text-anchor="middle" class="cm-t">완전 재밌는데?!</text>
+        
+      <rect x="88" y="120" width="84" height="17" rx="8.5" fill="#fff" stroke="#1d1d1d" stroke-width="1.6"/>
+      <rect x="90" y="122" width="36" height="13" rx="6.5" fill="#e9a93b"/>
+      <text x="130" y="132.5" text-anchor="middle" class="cm-g">복무 의지 45%</text></g><rect x="6" y="8" width="172" height="136" rx="5" fill="none" stroke="#1d1d1d" stroke-width="2.6"/></g>
+
+      <!-- ② 승인 → 포인트가 지역화폐로 -->
+      <g><clipPath id="p182-8"><rect x="182" y="8" width="172" height="136" rx="5"/></clipPath>
+      <g clip-path="url(#p182-8)"><rect x="182" y="8" width="172" height="136" fill="#e3f4ea"/><rect x="182" y="8" width="172" height="136" fill="url(#dots)" opacity=".5"/><rect x="187" y="13" width="72" height="16" fill="#ffe14d" stroke="#1d1d1d" stroke-width="1.4"/>
+      <text x="192" y="25" class="cm-c">② 포인트 적립</text>
+        <g transform="translate(220 88) scale(0.95) translate(-220 -88)">
+      <path d="M201 106 Q196 128 197 148 H243 Q244 128 239 106 Z" fill="url(#camo2)" stroke="#1d1d1d" stroke-width="2" stroke-linejoin="round"/>
+      <rect x="223" y="114" width="12" height="4" fill="#fff" stroke="#1d1d1d" stroke-width="1"/>
+      <rect x="205" y="114" width="9" height="6" fill="#111"/><path d="M206.5 116 h6 M206.5 118 h6" stroke="#e9c46a" stroke-width="1"/>
+      <circle cx="220" cy="88" r="21" fill="#f6d2b0" stroke="#1d1d1d" stroke-width="2.2"/>
+      <path d="M198.5 85 Q198 63 220 63 Q242 63 241.5 85 Z" fill="url(#camo2)" stroke="#1d1d1d" stroke-width="2.2" stroke-linejoin="round"/>
+      <rect x="196" y="82" width="48" height="5.5" rx="2.75" fill="#3b4529" stroke="#1d1d1d" stroke-width="1.8"/>
+      <path d="M209 92 q3.5 -6 7 0 M224 92 q3.5 -6 7 0" stroke="#1d1d1d" stroke-width="2.2" fill="none" stroke-linecap="round"/>
+        <path d="M212 97 q8 11 16 0 z" fill="#b0413e" stroke="#1d1d1d" stroke-width="1.6" stroke-linejoin="round"/>
+        <ellipse cx="207" cy="97" rx="3.5" ry="2" fill="#ff9aa2" opacity=".8"/><ellipse cx="233" cy="97" rx="3.5" ry="2" fill="#ff9aa2" opacity=".8"/></g>
+        <g transform="rotate(-10 268 88)">
+          <rect x="252" y="61" width="32" height="54" rx="5" fill="#2b2f36" stroke="#1d1d1d" stroke-width="1.8"/>
+          <rect x="255" y="66" width="26" height="42" rx="2" fill="#fff"/>
+          <text x="268" y="81" text-anchor="middle" class="cm-g" style="font-size:9.5px;fill:#2a9d8f">+100P</text>
+          <rect x="257" y="87" width="22" height="13" rx="2" fill="#3a86ff"/>
+          <text x="268" y="96.5" text-anchor="middle" class="cm-g" style="font-size:6px;fill:#fff">지역화폐</text>
+        </g>
+        <circle cx="253" cy="110" r="5" fill="#f6d2b0" stroke="#1d1d1d" stroke-width="1.5"/>
+        <circle cx="302" cy="72" r="8" fill="#f6c445" stroke="#1d1d1d" stroke-width="1.6"/><text x="302" y="75.36" text-anchor="middle" class="cm-coin" style="font-size:9.6px">P</text><circle cx="322" cy="90" r="6.5" fill="#f6c445" stroke="#1d1d1d" stroke-width="1.6"/><text x="322" y="92.73" text-anchor="middle" class="cm-coin" style="font-size:7.8px">P</text><circle cx="298" cy="104" r="5.5" fill="#f6c445" stroke="#1d1d1d" stroke-width="1.6"/><text x="298" y="106.31" text-anchor="middle" class="cm-coin" style="font-size:6.6px">P</text>
+        
+      <path d="M264 14 H340 Q348 14 348 22 V40 Q348 48 340 48
+        H286 L278 56 L278 48 H264 Q256 48 256 40 V22 Q256 14 264 14 Z"
+        fill="#fff" stroke="#1d1d1d" stroke-width="1.8" stroke-linejoin="round"/>
+      <text x="302" y="29" text-anchor="middle" class="cm-t">포인트가</text><text x="302" y="41" text-anchor="middle" class="cm-t">지역화폐로 짠!</text>
+        
+      <rect x="264" y="120" width="84" height="17" rx="8.5" fill="#fff" stroke="#1d1d1d" stroke-width="1.6"/>
+      <rect x="266" y="122" width="60" height="13" rx="6.5" fill="#8ab17d"/>
+      <text x="306" y="132.5" text-anchor="middle" class="cm-g">복무 의지 75%</text></g><rect x="182" y="8" width="172" height="136" rx="5" fill="none" stroke="#1d1d1d" stroke-width="2.6"/></g>
+
+      <!-- ③ 외출 날: 동네서점에서 지역화폐로 새 책 구매 (넓은 칸) -->
+      <g><clipPath id="p6-150"><rect x="6" y="150" width="348" height="136" rx="5"/></clipPath>
+      <g clip-path="url(#p6-150)"><rect x="6" y="150" width="348" height="136" fill="#fff0b3"/><path d="M90 232 L290 232 L283.18516525781365 283.76380902050414 Z" fill="#ffe27a"/><path d="M90 232 L263.20508075688775 332 L231.4213562373095 373.4213562373095 Z" fill="#ffe27a"/><path d="M90 232 L190.00000000000003 405.2050807568877 L141.7638090205042 425.18516525781365 Z" fill="#ffe27a"/><path d="M90 232 L90.00000000000001 432 L38.23619097949587 425.18516525781365 Z" fill="#ffe27a"/><path d="M90 232 L-9.999999999999957 405.20508075688775 L-51.42135623730948 373.4213562373095 Z" fill="#ffe27a"/><path d="M90 232 L-83.20508075688775 332 L-103.18516525781365 283.76380902050414 Z" fill="#ffe27a"/><path d="M90 232 L-110 232.00000000000003 L-103.18516525781365 180.23619097949583 Z" fill="#ffe27a"/><path d="M90 232 L-83.20508075688775 132.00000000000006 L-51.42135623730954 90.57864376269052 Z" fill="#ffe27a"/><path d="M90 232 L-10.000000000000085 58.794919243112304 L38.236190979495696 38.81483474218638 Z" fill="#ffe27a"/><path d="M90 232 L89.99999999999996 32 L141.76380902050406 38.81483474218632 Z" fill="#ffe27a"/><path d="M90 232 L190.00000000000003 58.794919243112275 L231.42135623730948 90.57864376269046 Z" fill="#ffe27a"/><path d="M90 232 L263.2050807568877 131.99999999999991 L283.18516525781365 180.2361909794957 Z" fill="#ffe27a"/>
+        <rect x="240" y="196" width="6" height="10" fill="#8ab17d" stroke="#1d1d1d" stroke-width=".7"/><rect x="247" y="193" width="6" height="13" fill="#b5838d" stroke="#1d1d1d" stroke-width=".7"/><rect x="254" y="194" width="6" height="12" fill="#264653" stroke="#1d1d1d" stroke-width=".7"/><rect x="261" y="195" width="6" height="11" fill="#f4a261" stroke="#1d1d1d" stroke-width=".7"/><rect x="268" y="196" width="6" height="10" fill="#e76f51" stroke="#1d1d1d" stroke-width=".7"/><rect x="275" y="193" width="6" height="13" fill="#2a9d8f" stroke="#1d1d1d" stroke-width=".7"/><rect x="282" y="194" width="6" height="12" fill="#e9a93b" stroke="#1d1d1d" stroke-width=".7"/><rect x="289" y="195" width="6" height="11" fill="#457b9d" stroke="#1d1d1d" stroke-width=".7"/><rect x="296" y="196" width="6" height="10" fill="#8ab17d" stroke="#1d1d1d" stroke-width=".7"/><rect x="303" y="193" width="6" height="13" fill="#b5838d" stroke="#1d1d1d" stroke-width=".7"/><rect x="310" y="194" width="6" height="12" fill="#264653" stroke="#1d1d1d" stroke-width=".7"/><rect x="317" y="195" width="6" height="11" fill="#f4a261" stroke="#1d1d1d" stroke-width=".7"/><rect x="324" y="196" width="6" height="10" fill="#e76f51" stroke="#1d1d1d" stroke-width=".7"/><rect x="331" y="193" width="6" height="13" fill="#2a9d8f" stroke="#1d1d1d" stroke-width=".7"/><rect x="238" y="206" width="101" height="3" fill="#8b5e3c"/><rect x="240" y="220" width="6" height="12" fill="#264653" stroke="#1d1d1d" stroke-width=".7"/><rect x="247" y="221" width="6" height="11" fill="#f4a261" stroke="#1d1d1d" stroke-width=".7"/><rect x="254" y="222" width="6" height="10" fill="#e76f51" stroke="#1d1d1d" stroke-width=".7"/><rect x="261" y="219" width="6" height="13" fill="#2a9d8f" stroke="#1d1d1d" stroke-width=".7"/><rect x="268" y="220" width="6" height="12" fill="#e9a93b" stroke="#1d1d1d" stroke-width=".7"/><rect x="275" y="221" width="6" height="11" fill="#457b9d" stroke="#1d1d1d" stroke-width=".7"/><rect x="282" y="222" width="6" height="10" fill="#8ab17d" stroke="#1d1d1d" stroke-width=".7"/><rect x="289" y="219" width="6" height="13" fill="#b5838d" stroke="#1d1d1d" stroke-width=".7"/><rect x="296" y="220" width="6" height="12" fill="#264653" stroke="#1d1d1d" stroke-width=".7"/><rect x="303" y="221" width="6" height="11" fill="#f4a261" stroke="#1d1d1d" stroke-width=".7"/><rect x="310" y="222" width="6" height="10" fill="#e76f51" stroke="#1d1d1d" stroke-width=".7"/><rect x="317" y="219" width="6" height="13" fill="#2a9d8f" stroke="#1d1d1d" stroke-width=".7"/><rect x="324" y="220" width="6" height="12" fill="#e9a93b" stroke="#1d1d1d" stroke-width=".7"/><rect x="331" y="221" width="6" height="11" fill="#457b9d" stroke="#1d1d1d" stroke-width=".7"/><rect x="238" y="232" width="101" height="3" fill="#8b5e3c"/>
+        <path d="M84 172 V180 M124 172 V180" stroke="#1d1d1d" stroke-width="1.2"/>
+        <rect x="74" y="180" width="60" height="16" rx="3" fill="#8b5e3c" stroke="#1d1d1d" stroke-width="1.4"/>
+        <text x="104" y="191.5" text-anchor="middle" class="cm-g" style="font-size:9.5px;fill:#fff">동네서점</text><rect x="11" y="155" width="54" height="16" fill="#ffe14d" stroke="#1d1d1d" stroke-width="1.4"/>
+      <text x="16" y="167" class="cm-c">③ 외출 날</text>
+        <path d="M28 199 L30.1 203.9 L35 206 L30.1 208.1 L28 213 L25.9 208.1 L21 206 L25.9 203.9 Z" fill="#fff" stroke="#1d1d1d" stroke-width="1.3" stroke-linejoin="round"/><path d="M160 208 L161.8 212.2 L166 214 L161.8 215.8 L160 220 L158.2 215.8 L154 214 L158.2 212.2 Z" fill="#fff" stroke="#1d1d1d" stroke-width="1.3" stroke-linejoin="round"/><path d="M222 177 L223.5 180.5 L227 182 L223.5 183.5 L222 187 L220.5 183.5 L217 182 L220.5 180.5 Z" fill="#fff" stroke="#1d1d1d" stroke-width="1.3" stroke-linejoin="round"/>
+        <g transform="translate(90 232) scale(1) translate(-90 -232)">
+      <path d="M71 250 Q66 272 67 292 H113 Q114 272 109 250 Z" fill="url(#camo2)" stroke="#1d1d1d" stroke-width="2" stroke-linejoin="round"/>
+      <rect x="93" y="258" width="12" height="4" fill="#fff" stroke="#1d1d1d" stroke-width="1"/>
+      <rect x="75" y="258" width="9" height="6" fill="#111"/><path d="M76.5 260 h6 M76.5 262 h6" stroke="#e9c46a" stroke-width="1"/>
+      <circle cx="90" cy="232" r="21" fill="#f6d2b0" stroke="#1d1d1d" stroke-width="2.2"/>
+      <path d="M68.5 229 Q68 207 90 207 Q112 207 111.5 229 Z" fill="url(#camo2)" stroke="#1d1d1d" stroke-width="2.2" stroke-linejoin="round"/>
+      <rect x="66" y="226" width="48" height="5.5" rx="2.75" fill="#3b4529" stroke="#1d1d1d" stroke-width="1.8"/>
+      <path d="M79 236 q3.5 -6 7 0 M94 236 q3.5 -6 7 0" stroke="#1d1d1d" stroke-width="2.2" fill="none" stroke-linecap="round"/>
+        <path d="M82 241 q8 11 16 0 z" fill="#b0413e" stroke="#1d1d1d" stroke-width="1.6" stroke-linejoin="round"/>
+        <ellipse cx="77" cy="241" rx="3.5" ry="2" fill="#ff9aa2" opacity=".8"/><ellipse cx="103" cy="241" rx="3.5" ry="2" fill="#ff9aa2" opacity=".8"/><path d="M106 258 Q120 238 105 222" stroke="#1d1d1d" stroke-width="9" fill="none" stroke-linecap="round"/>
+        <path d="M106 258 Q120 238 105 222" stroke="url(#camo2)" stroke-width="6" fill="none" stroke-linecap="round"/>
+        <path d="M98 220 l10 -4 l2 5 l-10 3 z" fill="#f6d2b0" stroke="#1d1d1d" stroke-width="1.5" stroke-linejoin="round"/>
+        <g transform="rotate(-12 68 268)"><rect x="60" y="256" width="14" height="20" rx="1.5" fill="#2a9d8f" stroke="#1d1d1d" stroke-width="1.8"/><path d="M63 256 v20" stroke="#1d1d1d" stroke-width="1"/></g></g>
+        <text x="146" y="264" class="cm-up" style="font-size:17px">UP!</text>
+        
+      <path d="M146 158 H254 Q262 158 262 166 V184 Q262 192 254 192
+        H156 L148 200 L148 192 H146 Q138 192 138 184 V166 Q138 158 146 158 Z"
+        fill="#fff" stroke="#1d1d1d" stroke-width="1.8" stroke-linejoin="round"/>
+      <text x="200" y="173" text-anchor="middle" class="cm-t">지역화폐로 새 책 득템!</text><text x="200" y="185" text-anchor="middle" class="cm-t">전역까지 100권!</text>
+        <rect x="240" y="242" width="88" height="16" rx="8" fill="#3a86ff" stroke="#1d1d1d" stroke-width="1.4"/>
+        <text x="284" y="253.5" text-anchor="middle" class="cm-g" style="font-size:9px;fill:#fff">지역화폐 결제 완료 ✓</text>
+        
+      <rect x="264" y="262" width="84" height="17" rx="8.5" fill="#fff" stroke="#1d1d1d" stroke-width="1.6"/>
+      <rect x="266" y="264" width="80" height="13" rx="6.5" fill="#2a9d8f"/>
+      <text x="306" y="274.5" text-anchor="middle" class="cm-g">복무 의지 MAX</text></g><rect x="6" y="150" width="348" height="136" rx="5" fill="none" stroke="#1d1d1d" stroke-width="2.6"/></g>
+    </svg></div></div>
+</div></body></html>
