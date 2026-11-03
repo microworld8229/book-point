@@ -13,6 +13,17 @@ function kstNow() {
   return new Date(Date.now() + 9 * 3600e3).toISOString().slice(0, 19).replace('T', ' ');
 }
 
+// DATABASE_PASSWORD 가 따로 있으면 연결 문자열의 비밀번호 자리([YOUR-PASSWORD])에 안전하게 끼워 넣는다
+// (특수문자가 있어도 깨지지 않도록 URL 인코딩)
+function connectionString() {
+  const raw = process.env.DATABASE_URL.trim();
+  const password = process.env.DATABASE_PASSWORD;
+  if (!password) return raw;
+  const url = new URL(raw.replace('[YOUR-PASSWORD]', 'x'));
+  url.password = encodeURIComponent(password);
+  return url.toString();
+}
+
 // ── 드라이버: { query(sql, params) → {rows, rowCount}, exec(sql), tx(fn) } ──
 let driver;
 function getDriver() {
@@ -21,7 +32,7 @@ function getDriver() {
     const { Pool, types } = require('pg');
     types.setTypeParser(20, (v) => parseInt(v, 10)); // COUNT/SUM(bigint) → number
     const pool = new Pool({
-      connectionString: process.env.DATABASE_URL,
+      connectionString: connectionString(),
       ssl: process.env.DATABASE_SSL === '0' ? false : { rejectUnauthorized: false },
       max: Number(process.env.DATABASE_POOL_MAX) || 3,
       idleTimeoutMillis: 10_000,

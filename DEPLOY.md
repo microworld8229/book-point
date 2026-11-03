@@ -49,7 +49,8 @@ vercel deploy --prod
 
 | 환경변수 | 값 |
 |---|---|
-| `DATABASE_URL` | 1번에서 만든 Supabase 연결 문자열 |
+| `DATABASE_URL` | Supabase 연결 문자열. `[YOUR-PASSWORD]`를 그대로 둬도 됨 |
+| `DATABASE_PASSWORD` | Supabase DB 비밀번호 (특수문자 그대로 입력, 앱이 주소에 안전하게 넣음) |
 | `ADMIN_PASSWORD` | 관리자(`admin`) 로그인 비밀번호 — 8자 이상 |
 | `SESSION_SECRET` | 로그인 쿠키 서명용 무작위 문자열 (자동 생성) |
 | `SAMPLE_DATA` | (선택) `0`이면 샘플 장병 50명을 만들지 않음 |
