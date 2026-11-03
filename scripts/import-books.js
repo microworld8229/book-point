@@ -1,10 +1,11 @@
 // 부대 도서관 도서 목록(엑셀/CSV)을 도서 DB로 불러온다.
 // 사용법: npm run import-books -- <파일.xlsx|파일.csv>
 // 첫 번째 열 = 도서 코드, 두 번째 열 = 도서 제목 (첫 행이 머리글이면 자동으로 건너뜀)
+// 운영 DB(Supabase)에 넣으려면 DATABASE_URL 환경변수를 지정하고 실행한다.
 const fs = require('node:fs');
 const path = require('node:path');
 const ExcelJS = require('exceljs');
-const { upsertBooks, parseCsvLine } = require('../db');
+const { db, tx, initSchema, upsertBooks, parseCsvLine } = require('../db');
 
 async function main() {
   const file = process.argv[2];
@@ -31,8 +32,10 @@ async function main() {
   }
 
   if (rows.length && /코드|code/i.test(rows[0][0])) rows.shift();
-  const count = upsertBooks(rows);
+  await tx(initSchema); // 처음 실행이면 테이블부터 만든다
+  const count = await upsertBooks(rows);
   console.log(`도서 ${count}권을 불러왔습니다.`);
+  await db.close();
 }
 
 main().catch((err) => {

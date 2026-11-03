@@ -1,78 +1,92 @@
-# 배포 안내 (책읽는 장병)
+# 배포 안내 (GitHub + Vercel + Supabase)
 
-장병들이 개인 휴대폰으로 링크를 열어 쓰려면, 외부 인터넷에서 접속되는 서버에 올려야 합니다.
-아래는 **Render**(클라우드 호스팅) 기준 절차입니다. 같은 `Dockerfile`로 다른 플랫폼에도 올릴 수 있습니다.
+| 서비스 | 하는 일 | 비용 |
+|---|---|---|
+| **GitHub** | 코드 보관 (비공개 저장소) | 무료 |
+| **Supabase** | 데이터베이스 (장병·일지·공지) — 서울 리전 | 무료 플랜 |
+| **Vercel** | 웹사이트 서버, `https://○○.vercel.app` 주소 발급 — 서울 리전 | 무료(Hobby) |
 
-## 0. 배포 전 반드시 확인 (PRD 14장)
+GitHub에 코드를 올리면 Vercel이 자동으로 다시 배포합니다.
 
-- [ ] **부대 보안 담당 승인:** 장병 개인정보(이름·생년월일·휴대폰 번호·지자체 앱 ID)가 외부 클라우드에 저장됩니다.
-- [ ] **저장 위치(국외 이전):** Render 지역은 싱가포르입니다. 개인정보가 국외 서버에 저장되므로, 보안 담당이 허용하지 않으면 국내 리전(예: AWS 서울, 네이버클라우드)을 쓰세요. 국외 저장을 허용하는 경우에도 가입 화면 동의 문구에 "국외 이전(이전 국가·업체·항목)"을 추가해야 하는지 함께 확인하세요.
-- [ ] **개인정보 보유 기간:** 시범 운영 종료일과 파기 방법 확정 (파기 방법은 아래 6번)
+## 0. 배포 전 반드시 확인
+
+- [ ] **부대 보안 담당 승인:** 장병 개인정보(이름·생년월일·휴대폰 번호·지자체 앱 ID)가 외부 클라우드(Supabase 서울 리전)에 저장됩니다.
+- [ ] **개인정보 보유 기간:** 시범 운영 종료일과 파기 방법 확정 (아래 6번)
 - [ ] **실제 도서 목록:** 부대 도서관 엑셀 정리 (1열 도서 코드, 2열 제목)
+- [ ] Supabase 무료 플랜은 **1주일 동안 접속이 없으면 일시 정지**됩니다. 대시보드에서 "Restore"를 누르면 다시 켜집니다.
 
-## 1. 비용
+## 1. Supabase — 데이터베이스 만들기
 
-| 항목 | 금액(대략) |
+1. https://supabase.com 가입 (GitHub 계정으로 로그인 가능)
+2. **New project**
+   - Name: `book-point`
+   - Database Password: **직접 정한 강한 비밀번호** (따로 적어 두기)
+   - Region: **Northeast Asia (Seoul)**
+3. 프로젝트가 만들어지면 위쪽 **Connect** 버튼 → **Transaction pooler** 의 연결 문자열(URI)을 복사
+   - 모양: `postgresql://postgres.xxxx:[YOUR-PASSWORD]@aws-0-ap-northeast-2.pooler.supabase.com:6543/postgres`
+   - `[YOUR-PASSWORD]` 부분을 2번에서 정한 비밀번호로 바꾼 것이 **DATABASE_URL** 입니다.
+
+테이블은 앱이 처음 실행될 때 자동으로 만들어집니다. (Supabase 공개 API로는 읽을 수 없도록 RLS가 켜집니다)
+
+## 2. GitHub — 코드 올리기
+
+```bash
+gh auth login
+gh repo create book-point --private --source . --push
+```
+
+## 3. Vercel — 웹사이트 배포
+
+```bash
+vercel login
+vercel link
+vercel env add DATABASE_URL production
+vercel env add ADMIN_PASSWORD production
+vercel env add SESSION_SECRET production
+vercel git connect
+vercel deploy --prod
+```
+
+| 환경변수 | 값 |
 |---|---|
-| Render Starter 웹 서비스 | 월 약 7달러 |
-| 영구 디스크 1GB | 월 약 0.25달러 |
+| `DATABASE_URL` | 1번에서 만든 Supabase 연결 문자열 |
+| `ADMIN_PASSWORD` | 관리자(`admin`) 로그인 비밀번호 — 8자 이상 |
+| `SESSION_SECRET` | 로그인 쿠키 서명용 무작위 문자열 (자동 생성) |
+| `SAMPLE_DATA` | (선택) `0`이면 샘플 장병 50명을 만들지 않음 |
 
-무료 플랜은 디스크가 없어 재배포 때마다 데이터가 지워지므로 쓸 수 없습니다.
+배포가 끝나면 `https://book-point-xxxx.vercel.app` 주소가 나옵니다. 이 링크를 장병들에게 공유합니다.
 
-## 2. 코드를 GitHub에 올리기
+## 4. 첫 로그인과 확인
 
-1. GitHub(github.com) 계정을 만듭니다.
-2. 새 저장소(Repository)를 **Private(비공개)** 로 만듭니다.
-3. 이 폴더의 파일을 올립니다. (`node_modules`, `data` 폴더는 올리지 않습니다.)
-   - git이 설치되어 있으면 `git push`, 없으면 GitHub 웹의 "Add file → Upload files"로 올려도 됩니다.
+1. 배포 주소 접속 → ID `admin`, 비밀번호는 `ADMIN_PASSWORD` 값
+2. 처음 접속 때 테이블·도서 100권·샘플 장병 50명·공지 3건이 자동으로 만들어집니다 (10초 정도 걸릴 수 있음)
+3. 관리자 > 장병 관리 > 원하는 장병의 **체험 기록 넣기**로 체험용 독서 기록 10권을 넣을 수 있습니다
 
-## 3. Render에서 서비스 만들기
+### 실제 도서 목록 넣기
 
-1. Render(render.com)에 가입하고 GitHub 계정을 연결합니다.
-2. **New → Blueprint** 를 누르고 위 저장소를 고릅니다. `render.yaml` 설정이 자동으로 읽힙니다.
-   - 웹 서비스 `book-point` (Docker, 싱가포르, Starter)
-   - 영구 디스크 1GB → `/data`
-   - 헬스체크 `/healthz`
-3. `ADMIN_PASSWORD` 입력란에 **관리자 비밀번호**(8자 이상, 추측하기 어렵게)를 넣습니다.
-4. **Apply** 를 누르면 몇 분 뒤 `https://book-point-xxxx.onrender.com` 주소가 나옵니다. 이 링크가 장병 배포용 주소입니다.
+PC에서 (Supabase 연결 문자열을 임시 환경변수로 지정해서) 실행합니다.
 
-HTTPS는 Render가 자동으로 붙여 줍니다. 앱은 운영 모드에서 HTTP 접속을 HTTPS로 넘기고, 로그인 쿠키를 HTTPS 전용으로 씁니다.
+```bash
+npm run import-books -- 도서목록.xlsx
+```
 
-## 4. 첫 로그인과 도서 목록 등록
-
-1. 배포 주소로 접속해 ID `admin`, 3번에서 정한 비밀번호로 로그인합니다.
-2. 실제 도서 목록 등록 (택1)
-   - **첫 배포 전:** `seed/books.csv`를 실제 목록으로 바꿔서 올리면, DB가 빈 첫 실행 때 자동 등록됩니다.
-   - **배포 후:** 엑셀 파일을 저장소에 넣고 재배포한 뒤, Render 서비스의 **Shell** 탭에서 실행합니다.
-     ```
-     npm run import-books -- seed/도서목록.xlsx
-     ```
-     같은 도서 코드는 제목만 갱신되므로 여러 번 실행해도 됩니다.
-3. 예시 도서(`GOC-0001`~`GOC-0030`)가 필요 없으면, 첫 배포 전에 `seed/books.csv`를 실제 목록으로 바꿔 두세요.
-
-## 4-1. 샘플 데이터 정리
-
-첫 실행 때 이해를 돕기 위한 샘플 장병 50명이 자동으로 들어갑니다(엑셀 명단에서는 자동 제외).
-시범 장병 안내가 끝나고 정식 운영을 시작할 때 **관리자 > 장병 관리 > 샘플 데이터 모두 삭제**를 누르세요.
-처음부터 샘플 없이 시작하려면 Render 환경변수에 `SAMPLE_DATA=0`을 추가합니다.
+PowerShell에서는 먼저 `$env:DATABASE_URL="연결 문자열"` 을 입력한 뒤 위 명령을 실행합니다. 같은 도서 코드는 제목만 갱신됩니다.
 
 ## 5. 운영 중
 
-- **장병 안내:** 배포 주소 링크를 공유 → 각자 가입. 휴대폰 브라우저 메뉴의 "홈 화면에 추가"를 쓰면 앱처럼 열 수 있습니다.
-- **백업:** Render 디스크는 매일 스냅샷이 자동으로 남습니다(7일 보관). 월말 명단 엑셀도 따로 보관하세요.
-- **재배포:** GitHub에 새 코드를 올리면 자동으로 재배포됩니다. 데이터는 디스크에 남습니다.
-- **로그:** Render 서비스의 Logs 탭에서 오류를 볼 수 있습니다.
+- **샘플 정리:** 정식 운영 시작 때 관리자 > 장병 관리 > **샘플 데이터 모두 삭제**
+- **코드 수정 반영:** GitHub에 올리면(`git push`) Vercel이 자동 재배포
+- **오류 확인:** Vercel 대시보드 > 프로젝트 > **Logs**
+- **백업:** 월말 명단 엑셀을 따로 보관. (Supabase 무료 플랜은 자동 백업이 제한적)
 
 ## 6. 시범 운영 종료 시 파기
 
-1. 마지막 명단 엑셀을 내려받아 지자체에 전달합니다.
-2. Render에서 서비스와 디스크를 **삭제**합니다(스냅샷도 함께 지워짐).
-3. 내려받은 엑셀 파일도 부대 규정에 따라 파기합니다.
+1. 마지막 명단 엑셀을 내려받아 지자체에 전달
+2. Supabase 프로젝트 **Settings > General > Delete project**
+3. Vercel 프로젝트 **Settings > Delete Project**
+4. 내려받은 엑셀 파일도 부대 규정에 따라 파기
 
-## 다른 플랫폼에 올릴 때
+## 로컬 개발
 
-`Dockerfile`을 지원하는 곳이면 어디든 됩니다. 꼭 맞춰야 할 것은 세 가지입니다.
-
-- 영구 볼륨을 `/data`에 연결
-- 환경변수 `ADMIN_PASSWORD`, `SESSION_SECRET`(32자 이상 무작위 문자열) 설정
-- HTTPS 적용 (리버스 프록시가 `X-Forwarded-Proto` 헤더를 넘겨야 함)
+`npm install` → `npm start` → http://localhost:3000
+`DATABASE_URL` 이 없으면 내장 PGlite(로컬 Postgres)를 `data/pgdata` 에 만들어 씁니다.

@@ -976,10 +976,31 @@
       list.innerHTML = `<h2>가입 장병 <small>${real}명${soldiers.length > real ? ` (+샘플 ${soldiers.length - real}명)` : ''}</small></h2>` + (soldiers.length ? soldiers.map((s) => `
         <div class="soldier-row">
           <div><div><b>${esc(s.rank)} ${esc(s.name)}</b>${s.isSample ? ' <span class="sample-tag">샘플</span>' : ''}</div><div class="sub">${esc(s.phone)} · 가입 ${fmtDate(s.createdAt)}</div></div>
-          ${s.isSample ? '' : `<button class="btn secondary small" data-reset="${s.id}" data-name="${esc(s.rank)} ${esc(s.name)}">비밀번호 초기화</button>`}
+          ${s.isSample ? '' : `<div class="row-actions">
+            <button class="btn secondary small" data-reset="${s.id}" data-name="${esc(s.rank)} ${esc(s.name)}">비밀번호 초기화</button>
+            ${s.sampleJournals ? `<span class="sample-tag">체험 기록 ${s.sampleJournals}건</span>`
+              : `<button class="btn ghost small" data-trial="${s.id}" data-name="${esc(s.rank)} ${esc(s.name)}">체험 기록 넣기</button>`}
+          </div>`}
         </div>`).join('') : '<div class="empty">검색 결과가 없습니다.</div>');
       list.querySelectorAll('[data-reset]').forEach((b) => {
         b.onclick = () => confirmReset(Number(b.dataset.reset), b.dataset.name);
+      });
+      list.querySelectorAll('[data-trial]').forEach((b) => {
+        b.onclick = () => openModal(`
+          <h3>체험 기록 넣기</h3>
+          <p><b>${esc(b.dataset.name)}</b> 계정에 체험용 샘플 독서 기록을 넣습니다.<br>
+            <small style="color:var(--muted)">승인 10권 + 대기 1건 + 반려 1건 · 엑셀 명단에서는 빠지고, 샘플 데이터 삭제 때 함께 지워집니다.</small></p>
+          <div class="buttons"><button class="btn secondary" data-cancel>취소</button><button class="btn" data-ok>넣기</button></div>
+        `, (m) => {
+          m.querySelector('[data-cancel]').onclick = closeModal;
+          const ok = m.querySelector('[data-ok]');
+          ok.onclick = () => submitting(ok, async () => {
+            const r = await api('POST', `/api/admin/soldiers/${b.dataset.trial}/sample-reading`, { count: 10 });
+            closeModal();
+            toast(`${r.displayName}: 승인 ${r.approved}권, 대기·반려 각 1건을 넣었습니다.`);
+            route();
+          });
+        });
       });
     }
     let t;

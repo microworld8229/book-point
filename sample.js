@@ -2,7 +2,7 @@
 // - 샘플 장병은 users.is_sample = 1, 로그인 불가(무작위 비밀번호), 엑셀 명단에서 제외
 // - 관리자 화면에서 한 번에 삭제할 수 있고, 삭제 후에는 다시 생성하지 않는다
 const crypto = require('node:crypto');
-const { db, tx, kstNow, hashPassword, getSetting, setSetting } = require('./db');
+const { db, tx, insertMany, kstNow, hashPassword, getSetting, setSetting } = require('./db');
 
 const SURNAMES = ['김', '이', '박', '최', '정', '강', '조', '윤', '장', '임', '한', '오', '서', '신', '권', '황', '안', '송', '류', '홍'];
 const GIVEN = ['민준', '서준', '도윤', '예준', '시우', '하준', '주원', '지호', '지후', '준서', '준우', '현우', '도현', '건우', '우진',
@@ -71,29 +71,26 @@ function dayBefore(today, offset) {
   return d.toISOString().slice(0, 10);
 }
 
-function seedNotices() {
-  if (getSetting('notices_seeded')) return;
+async function seedNotices(q) {
+  if (await getSetting(q, 'notices_seeded')) return;
   const now = kstNow();
-  const stmt = db.prepare('INSERT INTO notices (title, body, important, created_at) VALUES (?, ?, ?, ?)');
-  tx(() => { for (const n of [...NOTICES].reverse()) stmt.run(n.title, n.body, n.important, now); });
-  setSetting('notices_seeded', '1');
+  await insertMany(q, 'notices', ['title', 'body', 'important', 'created_at'], [...NOTICES].reverse().map((n) => [n.title, n.body, n.important, now]));
+  await setSetting(q, 'notices_seeded', '1');
 }
 
-const journalInserter = () => db.prepare(
-  `INSERT INTO journals (user_id, book_code, title, content, status, submitted_at, approved_at, rejected_at, reject_reason, points, is_sample)
-   VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1)`
-);
+const JOURNAL_COLS = ['user_id', 'book_code', 'title', 'content', 'status', 'submitted_at', 'approved_at', 'rejected_at', 'reject_reason', 'points', 'is_sample'];
 
 // 기존(실제) 계정에 체험용 샘플 독서활동을 넣는다: 승인 count건 + 대기 1건 + 반려 1건
-function addSampleReading(userId, count = 10) {
+async function addSampleReading(userId, count = 10) {
   const rand = rng(userId * 7919 + count);
   const pick = (arr) => arr[Math.floor(rand() * arr.length)];
   const now = kstNow();
   const today = now.slice(0, 10);
-  const used = new Set(db.prepare('SELECT book_code FROM journals WHERE user_id = ?').all(userId).map((r) => r.book_code));
-  const shelf = db.prepare('SELECT code, title FROM books ORDER BY code').all().filter((b) => !used.has(b.code)).sort(() => rand() - 0.5);
+  const used = new Set((await db.all('SELECT book_code FROM journals WHERE user_id = $1', [userId])).map((r) => r.book_code));
+  const shelf = (await db.all('SELECT code, title FROM books ORDER BY code')).filter((b) => !used.has(b.code)).sort(() => rand() - 0.5);
   if (shelf.length < count + 2) throw new Error('남은 도서가 부족합니다.');
-  const ins = journalInserter();
+  const rows = [];
+  const ins = { run: (...v) => rows.push([...v, 1]) };
   const content = () => `${pick(OPENERS)} ${pick(MIDDLES)} ${pick(CLOSERS)}`;
 
   // 이번 달 1일부터 어제까지 하루 최대 3건, 모자라면 지난달로 (승인일 기준 한도 R2·R3 이내)
@@ -104,24 +101,24 @@ function addSampleReading(userId, count = 10) {
     for (let k = 0; k < perDay && days.length < count; k++) days.push(day);
   }
   let b = 0;
-  tx(() => {
-    days.forEach((day, k) => {
-      const book = shelf[b++];
-      ins.run(userId, book.code, book.title, content(), 'approved', `${day} 19:${pad(10 + k)}:00`, `${day} 21:${pad(10 + k)}:00`, null, null, 100);
-    });
-    const pending = shelf[b++];
-    ins.run(userId, pending.code, pending.title, content(), 'pending', `${today} ${now.slice(11, 13)}:00:00`, null, null, null, 0);
-    const rejected = shelf[b++];
-    const rday = dayBefore(today, 2);
-    ins.run(userId, rejected.code, rejected.title, '재미있었다. 다음에도 읽고 싶다. 좋은 책이었다. 추천한다. 재미있었다. 다음에도 읽고 싶다.', 'rejected',
-      `${rday} 19:00:00`, null, `${rday} 21:00:00`, '분량 부족·내용 불충분', 0);
+  days.forEach((day, k) => {
+    const book = shelf[b++];
+    ins.run(userId, book.code, book.title, content(), 'approved', `${day} 19:${pad(10 + k)}:00`, `${day} 21:${pad(10 + k)}:00`, null, null, 100);
   });
+  const pending = shelf[b++];
+  ins.run(userId, pending.code, pending.title, content(), 'pending', `${today} ${now.slice(11, 13)}:00:00`, null, null, null, 0);
+  const rejected = shelf[b++];
+  const rday = dayBefore(today, 2);
+  ins.run(userId, rejected.code, rejected.title, '재미있었다. 다음에도 읽고 싶다. 좋은 책이었다. 추천한다. 재미있었다. 다음에도 읽고 싶다.', 'rejected',
+    `${rday} 19:00:00`, null, `${rday} 21:00:00`, '분량 부족·내용 불충분', 0);
+  await tx((q) => insertMany(q, 'journals', JOURNAL_COLS, rows));
   return { approved: count, pending: 1, rejected: 1 };
 }
 
-function seedSample() {
-  if (getSetting('sample_seeded')) return 0;
-  const books = db.prepare('SELECT code, title FROM books ORDER BY code').all();
+// 샘플 장병 50명과 일지를 만든다 (메모리에서 만든 뒤 여러 행씩 한 번에 저장)
+async function seedSample(q) {
+  if (await getSetting(q, 'sample_seeded')) return 0;
+  const books = await q.all('SELECT code, title FROM books ORDER BY code');
   if (books.length < 10) return 0;
 
   const rand = rng(20261103);
@@ -130,15 +127,13 @@ function seedSample() {
   const today = now.slice(0, 10);
   const pwHash = hashPassword(crypto.randomBytes(24).toString('hex')); // 로그인 불가
 
-  const insUser = db.prepare(
-    `INSERT INTO users (phone, password_hash, name, rank, birth, local_id, role, consent_at, created_at, is_sample)
-     VALUES (?, ?, ?, ?, ?, ?, 'soldier', ?, ?, 1)`
-  );
-  const insJournal = journalInserter();
+  const users = [];
+  const journalRows = []; // [phone, ...나머지 컬럼] — 저장 후 phone 을 user_id 로 바꾼다
+  const insJournal = { run: (phone, ...v) => journalRows.push([phone, ...v, 1]) };
 
   const usedNames = new Set();
   let journals = 0;
-  tx(() => {
+  {
     for (let i = 1; i <= 50; i++) {
       let name;
       do { name = pick(SURNAMES) + pick(GIVEN); } while (usedNames.has(name));
@@ -147,7 +142,8 @@ function seedSample() {
       const rank = r < 0.1 ? '이병' : r < 0.4 ? '일병' : r < 0.75 ? '상병' : '병장';
       const birth = `${2002 + Math.floor(rand() * 5)}-${pad(1 + Math.floor(rand() * 12))}-${pad(1 + Math.floor(rand() * 28))}`;
       const joined = `${dayBefore(today, 70 + Math.floor(rand() * 20))} 19:${pad(Math.floor(rand() * 60))}:00`;
-      const { lastInsertRowid: uid } = insUser.run(`sample-${pad(i)}`, pwHash, name, rank, birth, `sample_${pad(i)}`, joined, joined);
+      const uid = `sample-${pad(i)}`;
+      users.push([uid, pwHash, name, rank, birth, `sample_${pad(i)}`, 'soldier', joined, joined, 1]);
 
       // 독서량: 다독가 / 꾸준히 / 가끔 / 이제 시작
       const level = rand();
@@ -192,23 +188,28 @@ function seedSample() {
         journals++;
       }
     }
-  });
-  setSetting('sample_seeded', '1');
+  }
+
+  const inserted = await insertMany(q, 'users',
+    ['phone', 'password_hash', 'name', 'rank', 'birth', 'local_id', 'role', 'consent_at', 'created_at', 'is_sample'], users, 'RETURNING id, phone');
+  const idOf = new Map(inserted.map((u) => [u.phone, u.id]));
+  await insertMany(q, 'journals', JOURNAL_COLS, journalRows.map(([phone, ...rest]) => [idOf.get(phone), ...rest]));
+  await setSetting(q, 'sample_seeded', '1');
   return journals;
 }
 
-function sampleStatus() {
+async function sampleStatus() {
   return {
-    soldiers: db.prepare('SELECT COUNT(*) AS n FROM users WHERE is_sample = 1').get().n,
-    journals: db.prepare('SELECT COUNT(*) AS n FROM journals WHERE is_sample = 1 OR user_id IN (SELECT id FROM users WHERE is_sample = 1)').get().n,
+    soldiers: (await db.get('SELECT COUNT(*)::int AS n FROM users WHERE is_sample = 1')).n,
+    journals: (await db.get('SELECT COUNT(*)::int AS n FROM journals WHERE is_sample = 1 OR user_id IN (SELECT id FROM users WHERE is_sample = 1)')).n,
   };
 }
 
 function removeSample() {
-  return tx(() => {
-    const { changes: journals } = db.prepare('DELETE FROM journals WHERE is_sample = 1 OR user_id IN (SELECT id FROM users WHERE is_sample = 1)').run();
-    const { changes: soldiers } = db.prepare('DELETE FROM users WHERE is_sample = 1').run();
-    setSetting('sample_seeded', 'removed');
+  return tx(async (q) => {
+    const { rowCount: journals } = await q.query('DELETE FROM journals WHERE is_sample = 1 OR user_id IN (SELECT id FROM users WHERE is_sample = 1)');
+    const { rowCount: soldiers } = await q.query('DELETE FROM users WHERE is_sample = 1');
+    await setSetting(q, 'sample_seeded', 'removed');
     return { soldiers, journals };
   });
 }
