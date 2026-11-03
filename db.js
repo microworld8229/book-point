@@ -49,7 +49,31 @@ db.exec(`
 
   CREATE INDEX IF NOT EXISTS idx_journals_user ON journals(user_id, status);
   CREATE INDEX IF NOT EXISTS idx_journals_status ON journals(status, approved_at);
+
+  CREATE TABLE IF NOT EXISTS notices (
+    id         INTEGER PRIMARY KEY AUTOINCREMENT,
+    title      TEXT NOT NULL,
+    body       TEXT NOT NULL,
+    important  INTEGER NOT NULL DEFAULT 0,
+    created_at TEXT NOT NULL
+  );
+
+  CREATE TABLE IF NOT EXISTS settings (
+    key   TEXT PRIMARY KEY,
+    value TEXT NOT NULL
+  );
 `);
+
+// 기존 DB 마이그레이션: 샘플 장병·샘플 일지 구분 컬럼 (샘플은 엑셀 명단에서 제외)
+for (const table of ['users', 'journals']) {
+  if (!db.prepare(`PRAGMA table_info(${table})`).all().some((c) => c.name === 'is_sample')) {
+    db.exec(`ALTER TABLE ${table} ADD COLUMN is_sample INTEGER NOT NULL DEFAULT 0`);
+  }
+}
+
+const getSetting = (key) => db.prepare('SELECT value FROM settings WHERE key = ?').get(key)?.value;
+const setSetting = (key, value) =>
+  db.prepare('INSERT INTO settings (key, value) VALUES (?, ?) ON CONFLICT(key) DO UPDATE SET value = excluded.value').run(key, String(value));
 
 // 모든 시각은 한국시간(KST) 'YYYY-MM-DD HH:MM:SS' 문자열로 저장한다.
 function kstNow() {
@@ -154,4 +178,4 @@ function seed() {
   }
 }
 
-module.exports = { db, tx, kstNow, hashPassword, verifyPassword, loadSecret, upsertBooks, parseCsvLine, seed, DATA_DIR };
+module.exports = { db, tx, kstNow, hashPassword, verifyPassword, loadSecret, upsertBooks, parseCsvLine, seed, getSetting, setSetting, DATA_DIR };

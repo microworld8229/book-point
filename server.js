@@ -4,6 +4,7 @@ const crypto = require('node:crypto');
 const express = require('express');
 const ExcelJS = require('exceljs');
 const { db, tx, kstNow, hashPassword, verifyPassword, loadSecret, seed } = require('./db');
+const { seedSample, seedNotices, sampleStatus, removeSample } = require('./sample');
 
 // ── 업무 규칙 (PRD 7장) ──────────────────────────────────────────
 const POINTS_PER_JOURNAL = 100; // R1
@@ -18,6 +19,12 @@ const SESSION_DAYS = 14;
 const IS_PROD = process.env.NODE_ENV === 'production';
 const SECRET = loadSecret();
 seed();
+seedNotices();
+// 처음 방문한 장병이 화면을 이해하도록 샘플 장병 50명을 넣는다 (SAMPLE_DATA=0 이면 생략, 관리자 화면에서 삭제 가능)
+if (process.env.SAMPLE_DATA !== '0') {
+  const n = seedSample();
+  if (n) console.log(`[seed] 샘플 장병 50명, 일지 ${n}건 등록 (관리자 > 장병 관리에서 삭제 가능)`);
+}
 
 const app = express();
 app.set('trust proxy', 1);
@@ -323,19 +330,34 @@ app.get('/api/dashboard', auth, soldierOnly, (req, res) => {
        COUNT(CASE WHEN substr(submitted_at, 1, 7) = :m THEN 1 END) AS submitted,
        COUNT(CASE WHEN status = 'pending' THEN 1 END) AS pending,
        COUNT(CASE WHEN status = 'approved' AND substr(approved_at, 1, 7) = :m THEN 1 END) AS approved,
-       COUNT(CASE WHEN status = 'rejected' AND substr(rejected_at, 1, 7) = :m THEN 1 END) AS rejected
+       COUNT(CASE WHEN status = 'rejected' AND substr(rejected_at, 1, 7) = :m THEN 1 END) AS rejected,
+       COUNT(CASE WHEN status = 'approved' THEN 1 END) AS totalBooks
      FROM journals WHERE user_id = :uid`
   ).get({ m: month, uid });
 
   // 랭킹: 이번 달 승인 건수 내림차순, 동점이면 마지막 승인 일시가 빠른 장병이 위
   const ranking = db.prepare(
-    `SELECT u.id, u.name, u.rank, COUNT(*) AS cnt, MAX(j.approved_at) AS lastAt
+    `SELECT u.id, u.name, u.rank, u.is_sample, COUNT(*) AS cnt, MAX(j.approved_at) AS lastAt
      FROM journals j JOIN users u ON u.id = j.user_id
      WHERE j.status = 'approved' AND substr(j.approved_at, 1, 7) = ? AND u.role = 'soldier'
      GROUP BY u.id ORDER BY cnt DESC, lastAt ASC, u.id ASC`
   ).all(month);
   const myIndex = ranking.findIndex((r) => r.id === uid);
-  const top10 = ranking.slice(0, 10).map((r, i) => ({ rank: i + 1, displayName: displayName(r), count: r.cnt, isMe: r.id === uid }));
+  const top10 = ranking.slice(0, 10).map((r, i) => ({
+    rank: i + 1, displayName: displayName(r), count: r.cnt, isMe: r.id === uid, isSample: !!r.is_sample,
+  }));
+
+  // 독서활동 인기도서: 이번 달 승인 일지가 많은 책 (이번 달 기록이 없으면 전체 기간)
+  const popularSql = (where) => db.prepare(
+    `SELECT COALESCE(b.title, MIN(j.title)) AS title, COUNT(*) AS cnt FROM journals j LEFT JOIN books b ON b.code = j.book_code
+     WHERE j.status = 'approved' ${where} GROUP BY j.book_code ORDER BY cnt DESC, MAX(j.approved_at) DESC LIMIT 5`
+  );
+  let popularBooks = popularSql("AND substr(j.approved_at, 1, 7) = ?").all(month);
+  if (!popularBooks.length) popularBooks = popularSql('').all();
+
+  const notices = db.prepare('SELECT id, title, important, created_at FROM notices ORDER BY important DESC, id DESC LIMIT 3').all()
+    .map((n) => ({ id: n.id, title: n.title, important: !!n.important, createdAt: n.created_at }));
+  const sampleSoldiers = db.prepare('SELECT COUNT(*) AS n FROM users WHERE is_sample = 1').get().n;
 
   const unit = db.prepare(
     `SELECT COUNT(*) AS approved, COUNT(DISTINCT user_id) AS participants
@@ -352,14 +374,46 @@ app.get('/api/dashboard', auth, soldierOnly, (req, res) => {
     ranking: top10,
     myRank: myIndex >= 0 ? myIndex + 1 : null,
     unit: { ...unit, recentBooks },
+    popularBooks: popularBooks.map((b) => ({ title: b.title, count: b.cnt })),
+    notices,
+    sampleSoldiers,
   });
 });
+
+// ── 공지사항 ────────────────────────────────────────────────────
+const noticeView = (n) => ({ id: n.id, title: n.title, body: n.body, important: !!n.important, createdAt: n.created_at });
+
+app.get('/api/notices', auth, (req, res) => {
+  const rows = db.prepare('SELECT * FROM notices ORDER BY important DESC, id DESC').all();
+  res.json({ notices: rows.map(noticeView) });
+});
+
+app.post('/api/admin/notices', auth, adminOnly, (req, res) => {
+  const title = String(req.body?.title ?? '').trim();
+  const body = normalizeText(req.body?.body);
+  if (!title || charCount(title) > 100) fail(400, '제목을 100자 이내로 입력해 주세요.');
+  if (!body || charCount(body) > 3000) fail(400, '내용을 3,000자 이내로 입력해 주세요.');
+  const { lastInsertRowid } = db.prepare('INSERT INTO notices (title, body, important, created_at) VALUES (?, ?, ?, ?)')
+    .run(title, body, req.body?.important ? 1 : 0, kstNow());
+  res.json({ notice: noticeView(db.prepare('SELECT * FROM notices WHERE id = ?').get(lastInsertRowid)) });
+});
+
+app.delete('/api/admin/notices/:id', auth, adminOnly, (req, res) => {
+  const { changes } = db.prepare('DELETE FROM notices WHERE id = ?').run(Number(req.params.id));
+  if (!changes) fail(404, '공지를 찾을 수 없습니다.');
+  res.json({ ok: true });
+});
+
+// ── 관리자: 샘플 데이터 ─────────────────────────────────────────
+app.get('/api/admin/sample', auth, adminOnly, (req, res) => res.json(sampleStatus()));
+
+app.delete('/api/admin/sample', auth, adminOnly, (req, res) => res.json(removeSample()));
 
 // ── 관리자: 승인 대기 목록 ──────────────────────────────────────
 app.get('/api/admin/pending', auth, adminOnly, (req, res) => {
   const now = kstNow();
   const rows = db.prepare(
-    `SELECT j.*, u.name, u.rank, u.phone,
+    `SELECT j.*, u.name, u.rank, u.phone, (u.is_sample OR j.is_sample) AS sample,
        (SELECT COUNT(*) FROM journals a WHERE a.user_id = j.user_id AND a.status = 'approved' AND substr(a.approved_at, 1, 10) = :d) AS todayApproved,
        (SELECT COUNT(*) FROM journals a WHERE a.user_id = j.user_id AND a.status = 'approved' AND substr(a.approved_at, 1, 7) = :m) AS monthApproved
      FROM journals j JOIN users u ON u.id = j.user_id
@@ -374,6 +428,7 @@ app.get('/api/admin/pending', auth, adminOnly, (req, res) => {
       userId: r.user_id,
       displayName: displayName(r),
       phoneTail: r.phone.slice(-4),
+      isSample: !!r.sample,
       todayApproved: r.todayApproved,
       monthApproved: r.monthApproved,
     })),
@@ -434,16 +489,20 @@ app.get('/api/admin/soldiers', auth, adminOnly, (req, res) => {
   const q = String(req.query.q ?? '').trim();
   const digits = normalizePhone(q);
   const rows = db.prepare(
-    `SELECT id, name, rank, phone, created_at FROM users
+    `SELECT id, name, rank, phone, created_at, is_sample FROM users
      WHERE role = 'soldier' AND (? = '' OR name LIKE ? OR (? != '' AND phone LIKE ?))
-     ORDER BY name LIMIT 100`
+     ORDER BY is_sample, name LIMIT 200`
   ).all(q, `%${q}%`, digits, `%${digits}%`);
-  res.json({ soldiers: rows.map((r) => ({ id: r.id, name: r.name, rank: r.rank, phone: formatPhone(r.phone), createdAt: r.created_at })) });
+  res.json({
+    soldiers: rows.map((r) => ({
+      id: r.id, name: r.name, rank: r.rank, phone: r.is_sample ? '샘플 계정' : formatPhone(r.phone), createdAt: r.created_at, isSample: !!r.is_sample,
+    })),
+  });
 });
 
 app.post('/api/admin/soldiers/:id/reset-password', auth, adminOnly, (req, res) => {
   const user = getUserById.get(Number(req.params.id));
-  if (!user || user.role !== 'soldier') fail(404, '장병을 찾을 수 없습니다.');
+  if (!user || user.role !== 'soldier' || user.is_sample) fail(404, '장병을 찾을 수 없습니다.');
   // 헷갈리는 문자(0/O, 1/l/I)를 뺀 8자리 임시 비밀번호
   const alphabet = 'abcdefghjkmnpqrstuvwxyz23456789';
   const temp = Array.from(crypto.randomBytes(8), (b) => alphabet[b % alphabet.length]).join('');
@@ -453,14 +512,20 @@ app.post('/api/admin/soldiers/:id/reset-password', auth, adminOnly, (req, res) =
 });
 
 // ── 관리자: 월별 승인 명단 / 엑셀 ──────────────────────────────
+// 샘플 장병·샘플 일지는 지자체 명단에 넣지 않는다
 function exportRows(month) {
   return db.prepare(
     `SELECT u.name, u.rank, u.birth, u.phone, u.local_id, COUNT(*) AS cnt, SUM(j.points) AS pts
      FROM journals j JOIN users u ON u.id = j.user_id
-     WHERE j.status = 'approved' AND substr(j.approved_at, 1, 7) = ?
+     WHERE j.status = 'approved' AND substr(j.approved_at, 1, 7) = ? AND u.is_sample = 0 AND j.is_sample = 0
      GROUP BY u.id ORDER BY u.name, u.id`
   ).all(month);
 }
+
+const countSampleApproved = (month) => db.prepare(
+  `SELECT COUNT(*) AS n FROM journals j JOIN users u ON u.id = j.user_id
+   WHERE j.status = 'approved' AND substr(j.approved_at, 1, 7) = ? AND (u.is_sample = 1 OR j.is_sample = 1)`
+).get(month).n;
 
 function parseMonth(q) {
   const month = String(q ?? '').trim() || monthOf(kstNow());
@@ -481,6 +546,7 @@ app.get('/api/admin/export', auth, adminOnly, (req, res) => {
     months,
     rows: rows.map((r) => ({ name: r.name, rank: r.rank, count: r.cnt, points: r.pts })),
     total: { soldiers: rows.length, count: rows.reduce((s, r) => s + r.cnt, 0), points: rows.reduce((s, r) => s + r.pts, 0) },
+    sampleExcluded: countSampleApproved(month),
   });
 });
 
@@ -522,7 +588,8 @@ app.get('/api/admin/export.xlsx', auth, adminOnly, async (req, res, next) => {
 // ── 정적 파일 / 에러 처리 ───────────────────────────────────────
 app.use('/api', (req, res) => res.status(404).json({ error: '없는 API입니다.' }));
 app.use(express.static(path.join(__dirname, 'public'), {
-  setHeaders: (res, file) => { if (file.endsWith('.html')) res.set('Cache-Control', 'no-cache'); },
+  // 재배포 후 옛 화면이 남지 않도록 매번 변경 여부 확인
+  setHeaders: (res, file) => { if (/\.(html|js|css)$/.test(file)) res.set('Cache-Control', 'no-cache'); },
 }));
 app.get('*', (req, res) => res.sendFile(path.join(__dirname, 'public', 'index.html')));
 

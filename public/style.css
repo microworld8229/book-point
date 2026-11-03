@@ -1,8 +1,8 @@
 :root {
-  --green: #2f5d3a;
-  --green-dark: #22452b;
-  --green-soft: #e7f0e9;
-  --bg: #f5f2ec;
+  --green: #4a5d32;
+  --green-dark: #33421f;
+  --green-soft: #eceedd;
+  --bg: #f3f1e8;
   --card: #ffffff;
   --text: #1d231f;
   --muted: #6b746e;
@@ -56,9 +56,16 @@ button, input, select, textarea { font: inherit; color: inherit; }
 
 /* 메인: 독서 순환 히어로 */
 .hero-card {
-  background: linear-gradient(160deg, #2f5d3a 0%, #4c8a5c 100%); color: #fff;
-  border-radius: 18px; padding: 16px 14px 14px; margin-bottom: 12px; overflow: hidden;
-  box-shadow: 0 6px 18px rgba(47,93,58,.22);
+  /* 위장무늬 느낌의 올리브 배경 */
+  background:
+    radial-gradient(ellipse 70px 38px at 12% 18%, rgba(0,0,0,.16), transparent 70%),
+    radial-gradient(ellipse 90px 46px at 88% 8%, rgba(160,150,100,.18), transparent 70%),
+    radial-gradient(ellipse 80px 40px at 72% 88%, rgba(0,0,0,.16), transparent 70%),
+    radial-gradient(ellipse 100px 42px at 22% 94%, rgba(160,150,100,.14), transparent 70%),
+    radial-gradient(ellipse 60px 34px at 52% 48%, rgba(0,0,0,.08), transparent 70%),
+    linear-gradient(160deg, #3b4728 0%, #56663a 100%);
+  color: #fff; border-radius: 18px; padding: 16px 14px 14px; margin-bottom: 12px; overflow: hidden;
+  box-shadow: 0 6px 18px rgba(59,71,40,.25);
 }
 .hero-card .greet { margin: 0; font-size: 16px; }
 .hero-card .tagline { margin: 2px 0 10px; font-size: 13px; opacity: .85; }
@@ -84,8 +91,8 @@ button, input, select, textarea { font: inherit; color: inherit; }
 /* 메인: 지역화폐 카드 모양 포인트 */
 .money-card {
   position: relative; overflow: hidden; margin-bottom: 6px; padding: 16px 18px; border-radius: 18px; color: #fff;
-  background: linear-gradient(135deg, #1f3b2a 0%, #2d5a3d 55%, #a8843a 140%);
-  box-shadow: 0 6px 16px rgba(31,59,42,.25);
+  background: linear-gradient(135deg, #2b331d 0%, #46542c 55%, #a8843a 140%);
+  box-shadow: 0 6px 16px rgba(43,51,29,.28);
 }
 .money-card::before, .money-card::after { content: ''; position: absolute; border-radius: 50%; background: rgba(255,255,255,.06); }
 .money-card::before { width: 180px; height: 180px; right: -60px; top: -70px; }
@@ -99,6 +106,64 @@ button, input, select, textarea { font: inherit; color: inherit; }
 .mc-amount span { margin-left: 3px; font-size: 17px; }
 .mc-bottom { display: flex; justify-content: space-between; margin-top: 8px; font-size: 12px; opacity: .85; }
 .mc-note { margin: 0 4px 12px; font-size: 12px; color: var(--muted); }
+
+/* 메인: 공지 배너 (순환) */
+.notice-banner { position: relative; height: 42px; margin-bottom: 10px; }
+.notice-banner button {
+  position: absolute; inset: 0; display: flex; align-items: center; gap: 8px; width: 100%; padding: 0 12px;
+  border: 1px solid var(--line); border-radius: 12px; background: #fff; cursor: pointer; text-align: left;
+  opacity: 0; transform: translateY(6px); transition: opacity .35s, transform .35s; pointer-events: none;
+}
+.notice-banner button.show { opacity: 1; transform: none; pointer-events: auto; }
+.notice-banner .t { flex: 1; min-width: 0; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; font-size: 14px; }
+.notice-banner .arrow { color: var(--muted); }
+
+/* 메인: 바로가기 */
+.quick-menu { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 12px; }
+.quick-menu button {
+  display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 12px 0 10px;
+  border: 0; border-radius: 14px; background: #fff; cursor: pointer; font-size: 12.5px; color: var(--text);
+  box-shadow: 0 1px 2px rgba(0,0,0,.04);
+}
+.quick-menu span { font-size: 22px; line-height: 1; }
+
+/* 메인: 독서 배지 */
+.badges { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; margin-top: 14px; }
+.badge-item { display: flex; flex-direction: column; align-items: center; gap: 3px; padding: 8px 0; border-radius: 12px; background: var(--bg); font-size: 11.5px; color: var(--muted); }
+.badge-item span { font-size: 22px; filter: grayscale(1); opacity: .35; }
+.badge-item.on { background: var(--green-soft); color: var(--green-dark); font-weight: 700; }
+.badge-item.on span { filter: none; opacity: 1; }
+.badge-next { margin: 10px 0 0; font-size: 13px; color: var(--muted); text-align: center; }
+
+/* 메인: 인기도서 */
+.popular-list { list-style: none; margin: 0; padding: 0; }
+.popular-list li { display: flex; align-items: center; gap: 10px; padding: 8px 0; border-bottom: 1px solid var(--line); }
+.popular-list li:last-child { border-bottom: 0; }
+.popular-list .cover { display: grid; place-items: center; width: 28px; height: 38px; border-radius: 3px 5px 5px 3px; color: #fff; font-weight: 800; font-size: 14px; box-shadow: inset 3px 0 0 rgba(0,0,0,.15); flex: 0 0 auto; }
+.popular-list .who { flex: 1; min-width: 0; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+.popular-list .cnt { font-size: 13px; font-weight: 700; color: var(--green); }
+
+.sample-tag { display: inline-block; padding: 0 6px; border-radius: 5px; background: #ecebe4; color: #8a8775; font-size: 11px; font-weight: 600; vertical-align: 1px; }
+
+/* 이용 안내 / 공지 */
+.guide-link { display: block; margin-top: 18px; padding: 14px; border-radius: 12px; background: var(--green-soft); color: var(--green-dark); text-align: center; text-decoration: none; font-size: 14px; }
+.guide-hero .tagline { line-height: 1.55; }
+.guide-steps { list-style: none; margin: 0; padding: 0; }
+.guide-steps li { position: relative; padding: 0 0 16px 18px; border-left: 2px solid var(--green-soft); margin-left: 6px; }
+.guide-steps li:last-child { padding-bottom: 0; }
+.guide-steps li::before { content: ''; position: absolute; left: -7px; top: 3px; width: 12px; height: 12px; border-radius: 50%; background: var(--green); }
+.guide-steps .num { display: block; font-size: 11px; font-weight: 800; color: var(--green); letter-spacing: .5px; }
+.guide-steps p { margin: 2px 0 0; font-size: 13.5px; color: var(--muted); }
+.guide-rules { margin: 12px 0 0; padding-left: 18px; font-size: 13.5px; color: #39413b; }
+.guide-rules li { margin-bottom: 4px; }
+details.faq { border-bottom: 1px solid var(--line); }
+details.faq:last-child { border-bottom: 0; }
+details.faq summary { padding: 12px 0; cursor: pointer; font-weight: 600; font-size: 14px; list-style: none; }
+details.faq summary::before { content: 'Q. '; color: var(--green); font-weight: 800; }
+details.faq p { margin: 0 0 12px; font-size: 13.5px; color: #39413b; }
+details.notice-item summary { cursor: pointer; list-style: none; }
+details.notice-item .sub { font-size: 12px; color: var(--muted); margin-top: 2px; }
+.notice-body { margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--line); font-size: 14px; white-space: pre-wrap; word-break: break-word; }
 
 /* 메인: 독서카페 책장 */
 .shelf-title { margin-top: 16px; font-size: 13px; color: var(--muted); }

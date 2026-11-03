@@ -6,7 +6,8 @@
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
-    "import-books": "node scripts/import-books.js"
+    "import-books": "node scripts/import-books.js",
+    "add-sample-reading": "node scripts/add-sample-reading.js"
   },
   "engines": {
     "node": ">=22.13"

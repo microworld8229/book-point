@@ -123,6 +123,7 @@
         <p class="center-link" style="margin-bottom:0">비밀번호를 잊으셨나요?<br>관리자에게 초기화를 요청하세요.</p>
       </form>
       <p class="center-link">처음이신가요? <a href="#/signup">가입하기</a></p>
+      <a class="guide-link" href="#/guide">📘 처음 오셨나요? <b>이용 안내 보기</b> ›</a>
     `);
     const form = root.querySelector('#login');
     form.onsubmit = (e) => {
@@ -227,46 +228,150 @@
     };
   }
 
+  // ── 이용 안내 (로그인 전후 모두) ──────────────────────────────
+  const FAQ = [
+    ['누가 참여할 수 있나요?', '시범부대 장병이면 누구나 가입할 수 있습니다. 지자체 독서포인트 적립을 위해 경기도 "천권으로 독서포인트" 앱 회원 ID가 필요합니다. 경기도 외 주소지 장병의 적립 허용 여부는 경기도와 협의 중입니다.'],
+    ['포인트는 언제 지역화폐로 바뀌나요?', '관리자가 월말에 승인 명단을 지자체에 전달하고, 지자체 기준(현재 매월 15일 전월분 자동 전환)에 따라 지역화폐로 전환됩니다. 실제 적립·전환 내역은 지자체 앱에서 확인하세요.'],
+    ['지역화폐는 어디서 쓰나요?', '지역화폐 가맹점으로 등록된 지역서점에서 책을 살 수 있습니다. 외출·휴가 때 부대 근처나 고향의 동네서점을 이용해 보세요.'],
+    ['하루에 몇 건까지 인정되나요?', '승인일 기준으로 하루 5건, 한 달 31건(최대 3,100P)까지 인정됩니다. 한도를 넘은 일지는 반려되지 않고 대기 상태로 남았다가 다음 날·다음 달에 승인됩니다.'],
+    ['같은 책으로 일지를 여러 번 낼 수 있나요?', '한 권당 일지 1건만 인정됩니다. 반려된 일지는 사유를 확인하고 고쳐서 다시 제출할 수 있습니다.'],
+    ['일지가 반려되는 경우는?', '다른 일지와 내용이 같거나, 부적절한 표현이 있거나, 분량이 부족하고 내용이 불충분하면 관리자가 반려합니다.'],
+    ['비밀번호를 잊어버렸어요.', '관리자에게 초기화를 요청하면 임시 비밀번호를 받을 수 있습니다. 로그인 후 새 비밀번호로 바꿔 주세요.'],
+    ['구매·대출 인증, 리뷰 포인트도 받을 수 있나요?', '이 앱은 부대 독서카페 독서일지만 다룹니다. 도서 구매·대출 인증, 리뷰, 독서행사 등은 "천권으로 독서포인트" 앱에서 직접 참여할 수 있습니다.'],
+  ];
+
+  function viewGuide() {
+    const back = me ? homeOf() : '#/login';
+    const root = render(`
+      ${topbar('이용 안내', { back })}
+      <section class="hero-card guide-hero">
+        <p class="greet"><b>책읽는 장병</b>은</p>
+        <p class="tagline">부대 독서카페에서 읽은 책을 독서일지로 남기면, 경기도 "천권으로 독서포인트"와 연계해 지역화폐로 돌려받는 장병 독서 지원 서비스입니다.</p>
+        ${heroArt()}
+      </section>
+
+      <section class="card">
+        <h2>포인트 이렇게 쌓으세요</h2>
+        <ol class="guide-steps">
+          <li><span class="num">STEP 1</span><b>가입하기</b><p>휴대폰 번호로 가입하고, 경기도 "천권으로" 앱 회원 ID와 개인정보 동의를 입력합니다.</p></li>
+          <li><span class="num">STEP 2</span><b>독서카페에서 읽고 일지 쓰기</b><p>부대 독서카페(도서관) 책을 읽고, 책의 도서 코드와 함께 독서일지를 50~200자로 씁니다.</p></li>
+          <li><span class="num">STEP 3</span><b>관리자 승인 → 포인트 적립</b><p>관리자가 읽고 승인하면 1건당 100P가 적립 예정 포인트로 쌓입니다.</p></li>
+          <li><span class="num">STEP 4</span><b>지역화폐로 새 책 구매</b><p>월말 명단이 지자체에 전달되면 지역화폐로 전환되어, 외출·휴가 때 지역서점에서 새 책을 살 수 있습니다.</p></li>
+        </ol>
+      </section>
+
+      <section class="card">
+        <h2>적립 기준</h2>
+        <table class="preview">
+          <thead><tr><th>항목</th><th class="num">포인트</th><th class="num">한도</th></tr></thead>
+          <tbody>
+            <tr><td>독서일지 (승인 1건)</td><td class="num">${meta.points}P</td><td class="num">일 ${meta.dailyLimit}건 · 월 ${meta.monthlyLimit}건</td></tr>
+            <tr><td>월 최대</td><td class="num">${num(meta.points * meta.monthlyLimit)}P</td><td class="num">승인일 기준</td></tr>
+          </tbody>
+        </table>
+        <ul class="guide-rules">
+          <li>일지 분량: ${meta.minLen}자 이상 ${meta.maxLen}자 이하 (공백 포함)</li>
+          <li>책 1권당 일지 1건만 인정 · 부대 도서 목록에 있는 책만 가능</li>
+          <li>포인트는 <b>승인일</b>이 속한 달의 실적으로 계산 (예: 10/31 제출, 11/2 승인 → 11월)</li>
+          <li>앱의 포인트는 <b>적립 예정</b> 포인트이며, 실제 적립은 지자체 앱에서 확인</li>
+        </ul>
+      </section>
+
+      <section class="card" id="faq">
+        <h2>자주 묻는 질문</h2>
+        ${FAQ.map(([q, a]) => `<details class="faq"><summary>${esc(q)}</summary><p>${esc(a)}</p></details>`).join('')}
+      </section>
+
+      ${me ? '' : `<div class="bottom-bar"><div class="inner">
+        <button class="btn secondary" data-go="#/login">로그인</button>
+        <button class="btn" data-go="#/signup">가입하기</button>
+      </div></div>`}
+    `);
+    if (location.hash === '#/guide/faq') root.querySelector('#faq').scrollIntoView();
+  }
+
+  // ── 공지사항 ──────────────────────────────────────────────────
+  async function viewNotices(seq) {
+    render(`${topbar('공지사항', { back: homeOf() })}<div class="loading">불러오는 중...</div>`);
+    const { notices } = await api('GET', '/api/notices');
+    if (seq !== renderSeq) return;
+    const open = Number(sessionStorage.getItem('openNotice')) || notices[0]?.id;
+    sessionStorage.removeItem('openNotice');
+    render(`
+      ${topbar('공지사항', { back: homeOf() })}
+      ${notices.length ? notices.map((n) => `
+        <details class="card notice-item" ${n.id === open ? 'open' : ''}>
+          <summary>${n.important ? '<span class="badge rejected">중요</span> ' : ''}<b>${esc(n.title)}</b><div class="sub">${fmtDate(n.createdAt)}</div></summary>
+          <div class="notice-body">${esc(n.body)}</div>
+        </details>`).join('') : '<div class="card empty">공지사항이 없습니다.</div>'}
+    `);
+  }
+
+  // 독서 배지: 누적 승인 권수 기준 (복무 중 100권 목표)
+  const BADGES = [[1, '🌱', '첫 권'], [10, '📗', '10권'], [30, '🎖️', '30권'], [50, '🏅', '50권'], [100, '🏆', '100권']];
+  const READING_GOAL = 100;
+
   // ── S1. 메인 대시보드 ─────────────────────────────────────────
   const SPINE_COLORS = ['#e76f51', '#2a9d8f', '#e9a93b', '#457b9d', '#8ab17d', '#b5838d', '#264653', '#f4a261'];
 
-  // 독서카페에서 읽기 → 포인트 → 지역화폐 → 동네서점에서 새 책
+  // 병영 독서카페(생활관)에서 읽기 → 인식표 포인트 → 지역화폐 → 외출 때 동네서점에서 새 책
   function heroArt() {
-    const books = [[20, 22], [30, 18], [39, 24], [50, 20], [60, 23], [72, 17], [81, 22], [92, 19], [102, 24], [113, 20], [123, 22], [134, 18]]
-      .map(([x, h], i) => `<rect x="${x}" y="${52 - h}" width="${i % 3 ? 9 : 10}" height="${h}" rx="1.5" fill="${SPINE_COLORS[i % SPINE_COLORS.length]}"/>`).join('');
-    const books2 = [[22, 19], [32, 23], [44, 17], [53, 21], [118, 20], [128, 24], [139, 18]]
-      .map(([x, h], i) => `<rect x="${x}" y="${80 - h}" width="9" height="${h}" rx="1.5" fill="${SPINE_COLORS[(i + 3) % SPINE_COLORS.length]}"/>`).join('');
+    const windows = [22, 41, 60, 98, 117, 136]
+      .map((x) => `<rect x="${x}" y="70" width="13" height="11" rx="1" fill="#a9c6d6" stroke="#7d6e4c" stroke-width="1.2"/>`).join('');
+    const fence = [178, 190].map((x) => `<rect x="${x}" y="108" width="3" height="34" fill="#5a5a4a"/>`).join('')
+      + [114, 124, 134].map((y) => `<path d="M174 ${y} H196" stroke="#8a8a78" stroke-width="1.2"/>`).join('')
+      + [[176, 114], [186, 124], [194, 114], [180, 134], [192, 134]].map(([x, y]) => `<path d="M${x - 2} ${y - 2} l4 4 M${x + 2} ${y - 2} l-4 4" stroke="#8a8a78" stroke-width="1"/>`).join('');
     return `
-    <svg class="hero-art" viewBox="0 0 360 150" role="img" aria-label="부대 독서카페에서 책을 읽고, 포인트를 지역화폐로 바꿔 동네서점에서 새 책을 사는 그림">
-      <rect x="0" y="142" width="360" height="2" fill="rgba(255,255,255,.3)"/>
-      <!-- 부대 독서카페 -->
-      <rect x="8" y="16" width="152" height="126" rx="12" fill="#fbf3e4"/>
-      ${books}<rect x="14" y="52" width="140" height="4" rx="2" fill="#c49a6c"/>
-      ${books2}<rect x="14" y="80" width="40" height="4" rx="2" fill="#c49a6c"/><rect x="114" y="80" width="40" height="4" rx="2" fill="#c49a6c"/>
-      <rect x="47" y="6" width="74" height="19" rx="9.5" fill="#8b5e3c"/>
-      <text x="84" y="19.5" text-anchor="middle" font-size="10.5" font-weight="700" fill="#fff">부대 독서카페</text>
-      <path d="M66 114 Q66 94 84 94 Q102 94 102 114 Z" fill="#5d7f45"/>
-      <circle cx="84" cy="83" r="11" fill="#f2c9a0"/>
-      <path d="M72.5 81 Q84 64 95.5 81 Z" fill="#4f6d3a"/>
-      <rect x="71" y="79" width="22" height="3.5" rx="1.75" fill="#3d5a2c"/>
-      <path d="M79 87 h3 M86 87 h3" stroke="#6b4a32" stroke-width="1.4" stroke-linecap="round"/>
-      <path d="M68 104 Q76 99 84 104 L84 113 Q76 108 68 113 Z" fill="#fff"/>
-      <path d="M100 104 Q92 99 84 104 L84 113 Q92 108 100 113 Z" fill="#eef2ee"/>
-      <circle cx="69" cy="109" r="3" fill="#f2c9a0"/><circle cx="99" cy="109" r="3" fill="#f2c9a0"/>
-      <rect x="28" y="113" width="112" height="7" rx="3" fill="#8b5e3c"/>
-      <rect x="38" y="120" width="5" height="22" fill="#7a5134"/><rect x="125" y="120" width="5" height="22" fill="#7a5134"/>
-      <rect x="114" y="101" width="12" height="12" rx="2.5" fill="#fff"/>
-      <path d="M126 104 a3.5 3.5 0 0 1 0 7" stroke="#fff" stroke-width="2" fill="none"/>
-      <path d="M117 98 q2 -3 0 -6 M122 98 q2 -3 0 -6" stroke="#c9b8a0" stroke-width="1.3" fill="none" stroke-linecap="round"/>
-      <path d="M22 142 v-14 M18 132 q4 -10 8 0" stroke="#5d7f45" stroke-width="3" fill="none" stroke-linecap="round"/>
-      <!-- 포인트 → 지역화폐 -->
-      <path d="M164 74 H184" stroke="#fff" stroke-width="2.5" stroke-dasharray="4 4" stroke-linecap="round"/>
-      <path d="M182 69 l6 5 -6 5" stroke="#fff" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
-      <circle cx="212" cy="66" r="17" fill="#e0ad2a"/>
-      <circle cx="207" cy="60" r="17" fill="#f6c445" stroke="#d9a400" stroke-width="3"/>
-      <text x="207" y="66" text-anchor="middle" font-size="17" font-weight="800" fill="#8a6400">P</text>
-      <text x="230" y="40" font-size="10" font-weight="700" fill="#ffe08a">+100P</text>
-      <path d="M207 82 V92" stroke="#fff" stroke-width="2.5" stroke-dasharray="3 3" stroke-linecap="round"/>
+    <svg class="hero-art" viewBox="0 0 360 150" role="img" aria-label="부대 생활관 독서카페 앞에서 장병이 책을 읽고, 인식표 모양 포인트를 지역화폐로 바꿔 외출 때 동네서점에서 새 책을 사는 그림">
+      <defs>
+        <pattern id="camo" width="8" height="8" patternUnits="userSpaceOnUse">
+          <rect width="8" height="8" fill="#6b7a4b"/><rect width="3" height="3" fill="#4a5634"/><rect x="4" y="2" width="3" height="2" fill="#8c8a5c"/>
+          <rect x="1" y="5" width="3" height="3" fill="#3b4529"/><rect x="6" y="5" width="2" height="2" fill="#a39b6e"/>
+        </pattern>
+      </defs>
+      <!-- 산과 부대 -->
+      <path d="M0 112 L34 74 L58 96 L98 52 L138 90 L160 72 L176 86 L176 142 L0 142 Z" fill="rgba(0,0,0,.16)"/>
+      <rect x="0" y="140" width="360" height="4" fill="rgba(0,0,0,.18)"/>
+      <path d="M8 62 L18 48 H158 L168 62 Z" fill="#55663a"/>
+      <rect x="14" y="62" width="148" height="58" fill="#ddd3b2"/>
+      <rect x="14" y="62" width="148" height="4" fill="#c4b994"/>
+      ${windows}
+      <rect x="77" y="98" width="22" height="22" fill="#6b5a3a"/><circle cx="95" cy="110" r="1.3" fill="#e9c46a"/>
+      <rect x="44" y="49.5" width="88" height="11" rx="2" fill="#2f3d22" stroke="#c4b994" stroke-width=".8"/>
+      <text x="88" y="58" text-anchor="middle" font-size="7.5" font-weight="700" fill="#f6e7b0">생활관 · 병영 독서카페</text>
+      <!-- 태극기 -->
+      <path d="M150 48 V14" stroke="#d8d8d8" stroke-width="2"/>
+      <rect x="151" y="14" width="24" height="16" fill="#fff"/>
+      <path d="M158.5 22 a4.5 4.5 0 0 1 9 0 a2.25 2.25 0 0 1 -4.5 0 a2.25 2.25 0 0 0 -4.5 0 z" fill="#cd2e3a"/>
+      <path d="M158.5 22 a4.5 4.5 0 0 0 9 0 a2.25 2.25 0 0 1 -4.5 0 a2.25 2.25 0 0 0 -4.5 0 z" fill="#0047a0"/>
+      <path d="M153.5 16.5 l3 2 M170 16.5 l-3 2 M153.5 27.5 l3 -2 M170 27.5 l-3 -2" stroke="#000" stroke-width="1.6"/>
+      <!-- 벤치에서 책 읽는 장병 (전투복·전투모) -->
+      <rect x="22" y="126" width="70" height="4" rx="2" fill="#7a5a3a"/>
+      <rect x="27" y="130" width="3" height="12" fill="#5c4329"/><rect x="84" y="130" width="3" height="12" fill="#5c4329"/>
+      <path d="M44 127 L44 106 Q44 97 56 97 Q68 97 68 106 L68 127 Z" fill="url(#camo)"/>
+      <rect x="43" y="122" width="26" height="6" rx="2" fill="url(#camo)"/>
+      <rect x="45" y="127" width="9" height="12" fill="url(#camo)"/><rect x="58" y="127" width="9" height="12" fill="url(#camo)"/>
+      <rect x="43" y="138" width="12" height="4" rx="1.5" fill="#1f1f1f"/><rect x="57" y="138" width="12" height="4" rx="1.5" fill="#1f1f1f"/>
+      <circle cx="56" cy="89" r="8.5" fill="#f0c8a0"/>
+      <path d="M47 87 V80 Q56 76 65 80 V87 Z" fill="url(#camo)"/>
+      <rect x="46" y="85.5" width="21" height="2.6" rx="1.3" fill="#3b4529"/>
+      <path d="M52 92 h2.5 M58 92 h2.5" stroke="#6b4a32" stroke-width="1.2" stroke-linecap="round"/>
+      <path d="M44 104 L56 100 L68 104 L68 117 L56 113 L44 117 Z" fill="#a33b2b"/>
+      <path d="M45.5 104 L56 101.5 L56 113 L45.5 116 Z" fill="#fff"/><path d="M66.5 104 L56 101.5 L56 113 L66.5 116 Z" fill="#eef0ea"/>
+      <circle cx="45" cy="111" r="2.6" fill="#f0c8a0"/><circle cx="67" cy="111" r="2.6" fill="#f0c8a0"/>
+      <path d="M118 142 l8 -26 l8 26 z M121 132 l5 -16 l5 16 z" fill="#3e5a2c"/>
+      ${fence}
+      <!-- 인식표(군번줄) 모양 포인트 → 지역화폐 -->
+      <path d="M160 40 H186" stroke="#fff" stroke-width="2.5" stroke-dasharray="4 4" stroke-linecap="round"/>
+      <path d="M184 35 l6 5 -6 5" stroke="#fff" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M212 34 Q206 18 196 30" stroke="#cfd5da" stroke-width="2" stroke-dasharray="1.5 2.2" fill="none" stroke-linecap="round"/>
+      <g transform="rotate(8 212 56)">
+        <rect x="197" y="34" width="30" height="44" rx="9" fill="#d5dade" stroke="#8f969c" stroke-width="2"/>
+        <circle cx="212" cy="41" r="2.4" fill="#4b5a35"/>
+        <text x="212" y="59" text-anchor="middle" font-size="10" font-weight="800" fill="#3b4529">+100</text>
+        <text x="212" y="69" text-anchor="middle" font-size="6.5" font-weight="700" fill="#5a6470">POINT</text>
+      </g>
+      <path d="M210 84 V93" stroke="#fff" stroke-width="2.5" stroke-dasharray="3 3" stroke-linecap="round"/>
       <g transform="rotate(-8 210 112)">
         <rect x="188" y="97" width="46" height="30" rx="5" fill="#3a86ff"/>
         <rect x="193" y="103" width="9" height="6" rx="1.5" fill="#ffe08a"/>
@@ -274,8 +379,8 @@
       </g>
       <path d="M238 112 H252" stroke="#fff" stroke-width="2.5" stroke-dasharray="4 4" stroke-linecap="round"/>
       <path d="M250 107 l6 5 -6 5" stroke="#fff" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
-      <!-- 동네서점 -->
-      <text x="309" y="31" text-anchor="middle" font-size="10.5" font-weight="700" fill="#fff">동네서점</text>
+      <!-- 외출 때 들르는 동네서점 -->
+      <text x="309" y="31" text-anchor="middle" font-size="10" font-weight="700" fill="#fff">외출 · 동네서점</text>
       <rect x="262" y="48" width="94" height="94" rx="4" fill="#fff"/>
       ${[0, 1, 2, 3, 4].map((i) => `<rect x="${258 + i * 20.4}" y="37" width="20.4" height="16" fill="${i % 2 ? '#fff' : '#e76f51'}"/><circle cx="${268.2 + i * 20.4}" cy="53" r="10.2" fill="${i % 2 ? '#fff' : '#e76f51'}"/>`).join('')}
       <rect x="270" y="74" width="46" height="34" rx="3" fill="#dcecf7"/>
@@ -283,7 +388,7 @@
       <rect x="324" y="86" width="24" height="56" rx="2" fill="#8b5e3c"/>
       <circle cx="343" cy="115" r="1.8" fill="#f6c445"/>
       <path d="M274 142 v-18 h14 v18" fill="#2a9d8f"/><path d="M277 124 q4 -7 8 0" stroke="#264653" stroke-width="1.6" fill="none"/>
-      <path d="M150 12 l1.5 3.5 3.5 1.5 -3.5 1.5 -1.5 3.5 -1.5 -3.5 -3.5 -1.5 3.5 -1.5 z M244 60 l1 2.5 2.5 1 -2.5 1 -1 2.5 -1 -2.5 -2.5 -1 2.5 -1 z" fill="#ffe08a"/>
+      <path d="M240 50 l1.5 3.5 3.5 1.5 -3.5 1.5 -1.5 3.5 -1.5 -3.5 -3.5 -1.5 3.5 -1.5 z" fill="#ffe08a"/>
     </svg>`;
   }
 
@@ -295,19 +400,22 @@
     const pct = Math.min(100, Math.round((d.me.approved / d.me.monthlyLimit) * 100));
     // 이번 달 어디까지 왔는지: 0 읽기 → 1 일지 제출 → 2 포인트 적립 → 3 지역화폐로 새 책
     const stage = d.me.approved > 0 ? 3 : d.me.submitted > 0 || d.me.pending > 0 ? 2 : 1;
-    const steps = [['📖', '독서카페에서<br>읽기'], ['✍️', '독서일지<br>제출'], ['🪙', '포인트<br>적립'], ['🛍️', '지역화폐로<br>새 책 구매']];
+    const steps = [['📖', '병영 독서카페<br>에서 읽기'], ['✍️', '독서일지<br>제출'], ['🎖️', '포인트<br>적립'], ['🛍️', '외출 때<br>새 책 구매']];
     const stageNote = [
       '',
       '책을 다 읽었다면 독서일지를 써 보세요. 승인되면 1건당 100P가 쌓입니다.',
       '일지가 관리자 확인을 기다리고 있어요. 승인되면 포인트가 쌓입니다.',
-      '월말에 승인 명단이 지자체에 전달되면, 지자체 앱에서 지역화폐로 받아 동네서점에서 새 책을 살 수 있어요.',
+      '월말에 승인 명단이 지자체에 전달되면, 지자체 앱에서 지역화폐로 받아 외출·휴가 때 동네서점에서 새 책을 살 수 있어요.',
     ][stage];
-    render(`
+    const root = render(`
       ${topbar('책읽는 장병', { right: `<button class="link-btn" data-go="#/password">비밀번호</button><button class="link-btn" data-logout>로그아웃</button>` })}
       ${me.mustChangePw ? '<div class="notice warn">임시 비밀번호를 사용 중입니다. <a href="#/password">비밀번호 변경하기 ›</a></div>' : ''}
+      ${d.notices.length ? `<div class="notice-banner">${d.notices.map((n, i) => `
+        <button class="${i === 0 ? 'show' : ''}" data-notice="${n.id}">${n.important ? '<span class="badge rejected">중요</span>' : '<span class="badge pending">공지</span>'}
+          <span class="t">${esc(n.title)}</span><span class="arrow">›</span></button>`).join('')}</div>` : ''}
 
       <section class="hero-card">
-        <p class="greet"><b>${esc(me.displayName)}</b>님, 오늘은 독서카페에서 한 권 어때요?</p>
+        <p class="greet">충성! <b>${esc(me.displayName)}</b>님,<br>오늘 일과 후엔 독서카페에서 한 권 어떻습니까?</p>
         <p class="tagline">읽은 책이 지역화폐가 되고, 지역화폐가 다시 새 책이 됩니다</p>
         ${heroArt()}
         <ol class="journey">
@@ -317,13 +425,35 @@
       </section>
 
       <section class="money-card" aria-label="나의 적립 예정 포인트">
-        <div class="mc-top"><span class="mc-brand">📖 BOOK POINT</span><span class="mc-tag">지역화폐 전환 예정</span></div>
+        <div class="mc-top"><span class="mc-brand">★ 장병 BOOK POINT</span><span class="mc-tag">지역화폐 전환 예정</span></div>
         <div class="mc-chip"></div>
         <div class="mc-label">${Number(m)}월 적립 예정</div>
         <div class="mc-amount">${num(d.me.monthPoints)}<span>P</span></div>
         <div class="mc-bottom"><span>누적 ${num(d.me.totalPoints)}P</span><span>${esc(me.displayName)}</span></div>
       </section>
       <p class="mc-note">※ 승인 기준 적립 예정 포인트입니다. 지자체 실제 적립은 지자체 앱에서 확인하세요.</p>
+
+      <nav class="quick-menu">
+        <button data-go="#/write"><span>✍️</span>일지 쓰기</button>
+        <button data-go="#/my"><span>📝</span>내 일지</button>
+        <button data-go="#/notices"><span>📢</span>공지사항</button>
+        <button data-go="#/guide"><span>📘</span>이용 안내</button>
+      </nav>
+
+      <section class="card">
+        <h2>📚 지금까지 읽은 책 <small>복무 중 목표 ${READING_GOAL}권</small></h2>
+        <div class="progress" style="margin-top:0">
+          <div class="meta"><span>승인된 독서일지 기준</span><span><b style="color:var(--green);font-size:18px">${d.me.totalBooks}권</b> / ${READING_GOAL}권</span></div>
+          <div class="bar"><i style="width:${Math.min(100, (d.me.totalBooks / READING_GOAL) * 100)}%"></i></div>
+        </div>
+        <div class="badges">
+          ${BADGES.map(([n, ic, label]) => `<div class="badge-item ${d.me.totalBooks >= n ? 'on' : ''}"><span>${ic}</span>${label}</div>`).join('')}
+        </div>
+        ${(() => {
+          const nextBadge = BADGES.find(([n]) => d.me.totalBooks < n);
+          return nextBadge ? `<p class="badge-next">다음 배지 <b>${nextBadge[2]}</b>까지 <b>${nextBadge[0] - d.me.totalBooks}권</b> 남았습니다.</p>` : '<p class="badge-next">모든 배지를 모았습니다! 🎉</p>';
+        })()}
+      </section>
 
       <section class="card">
         <h2>나의 독서활동 <small>${y}년 ${Number(m)}월</small></h2>
@@ -343,12 +473,19 @@
         <h2>이달의 활동 랭킹 TOP 10 <small>승인 건수</small></h2>
         ${d.ranking.length ? `<ol class="rank-list">${d.ranking.map((r) => `
           <li class="${r.isMe ? 'me' : ''}"><span class="pos">${r.rank}</span>
-            <span class="who">${esc(r.displayName)}${r.isMe ? ' (나)' : ''}</span>
+            <span class="who">${esc(r.displayName)}${r.isMe ? ' (나)' : ''}${r.isSample ? ' <span class="sample-tag">샘플</span>' : ''}</span>
             <span class="cnt">${r.count}건</span></li>`).join('')}</ol>`
           : '<div class="empty">아직 이번 달 승인된 일지가 없습니다.<br>첫 번째 주인공이 되어 보세요!</div>'}
         ${d.myRank && d.myRank > 10 ? `<div class="my-rank">나의 순위: <b>${d.myRank}위</b></div>` : ''}
         ${!d.myRank && d.ranking.length ? '<div class="my-rank">이번 달 승인 1건부터 순위에 오릅니다.</div>' : ''}
       </section>
+
+      ${d.popularBooks.length ? `<section class="card">
+        <h2>🔥 독서활동 인기도서 <small>승인 일지 수</small></h2>
+        <ol class="popular-list">${d.popularBooks.map((b, i) => `
+          <li><span class="cover" style="background:${SPINE_COLORS[i % SPINE_COLORS.length]}">${i + 1}</span>
+            <span class="who">${esc(b.title)}</span><span class="cnt">${b.count}명</span></li>`).join('')}</ol>
+      </section>` : ''}
 
       <section class="card">
         <h2>☕ 이번 달 부대 독서카페 현황</h2>
@@ -360,12 +497,28 @@
         ${d.unit.recentBooks.length ? `<div class="shelf-title">최근 승인된 책</div>
           <div class="shelf">${d.unit.recentBooks.map((t, i) => `<span class="spine" title="${esc(t)}" style="background:${SPINE_COLORS[i % SPINE_COLORS.length]};height:${[118, 104, 124, 98, 112][i % 5]}px">${esc(t)}</span>`).join('')}<span class="shelf-deco">🪴</span></div>` : ''}
       </section>
+      ${d.sampleSoldiers ? `<p class="mc-note">※ 이해를 돕기 위해 샘플 장병 ${d.sampleSoldiers}명의 기록이 포함되어 있습니다. 정식 운영 전에 삭제됩니다.</p>` : ''}
 
       <div class="bottom-bar"><div class="inner">
         <button class="btn secondary" data-go="#/my">내 일지 목록</button>
         <button class="btn" data-go="#/write">독서일지 쓰기</button>
       </div></div>
     `);
+
+    // 공지 배너: 클릭하면 해당 공지를 펼친 채로 공지사항 화면 이동, 여러 건이면 4초마다 순환
+    const banners = [...root.querySelectorAll('[data-notice]')];
+    banners.forEach((b) => {
+      b.onclick = () => { sessionStorage.setItem('openNotice', b.dataset.notice); go('#/notices'); };
+    });
+    if (banners.length > 1) {
+      let cur = 0;
+      const timer = setInterval(() => {
+        if (seq !== renderSeq || !root.isConnected) return clearInterval(timer);
+        banners[cur].classList.remove('show');
+        cur = (cur + 1) % banners.length;
+        banners[cur].classList.add('show');
+      }, 4000);
+    }
   }
 
   // ── S2. 독서일지 작성 / 재제출 ────────────────────────────────
@@ -507,7 +660,7 @@
       ${topbar('관리자', { right: `<button class="link-btn" data-go="#/password">비밀번호</button><button class="link-btn" data-logout>로그아웃</button>` })}
       ${me.mustChangePw ? '<div class="notice warn">초기 비밀번호를 사용 중입니다. <a href="#/password">비밀번호 변경하기 ›</a></div>' : ''}
       <div class="tabs">
-        ${[['#/admin', '승인 대기'], ['#/admin/export', '명단 내보내기'], ['#/admin/soldiers', '장병 관리']]
+        ${[['#/admin', '승인 대기'], ['#/admin/export', '명단 내보내기'], ['#/admin/soldiers', '장병 관리'], ['#/admin/notices', '공지 관리']]
           .map(([h, l]) => `<button class="tab ${active === h ? 'active' : ''}" data-go="${h}">${l}</button>`).join('')}
       </div>`;
   }
@@ -535,7 +688,7 @@
               <input type="checkbox" data-id="${j.id}" aria-label="선택">
               <div class="body">
                 <div class="head">
-                  <div><div class="title">${esc(j.displayName)} <small style="color:var(--muted);font-weight:400">(${esc(j.phoneTail)})</small></div>
+                  <div><div class="title">${esc(j.displayName)} ${j.isSample ? '<span class="sample-tag">샘플</span>' : `<small style="color:var(--muted);font-weight:400">(${esc(j.phoneTail)})</small>`}</div>
                     <div class="sub">${esc(j.title)} · ${esc(j.bookCode)} · 제출 ${fmtDateTime(j.submittedAt)}</div></div>
                 </div>
                 <div>
@@ -637,6 +790,7 @@
             <tfoot><tr><td>합계</td><td class="num">${num(d.total.count)}</td><td class="num">${num(d.total.points)}</td></tr></tfoot>
           </table>` : '<div class="empty">이 달에 승인된 일지가 없습니다.</div>'}
       </section>
+      ${d.sampleExcluded ? `<div class="notice warn">샘플 데이터의 승인 일지 ${num(d.sampleExcluded)}건은 명단에서 제외했습니다.</div>` : ''}
       <div class="notice info">엑셀 컬럼: 이름, 계급, 생년월일, 휴대폰 번호, 지자체 앱 회원 ID, 인정 건수, 적립 예정 포인트, 대상 월</div>
       <div class="bottom-bar"><div class="inner">
         ${d.rows.length
@@ -655,18 +809,47 @@
         <div class="field" style="margin-bottom:0"><label for="q">장병 검색</label>
           <input class="input" id="q" placeholder="이름 또는 휴대폰 번호" autocomplete="off"></div>
       </section>
+      <section class="card" id="sample" hidden></section>
       <section class="card" id="list"><div class="loading" style="padding:20px 0">불러오는 중...</div></section>
     `);
     const list = root.querySelector('#list');
+    const sampleBox = root.querySelector('#sample');
+
+    // 샘플 데이터: 정식 운영 전에 한 번에 삭제
+    async function loadSample() {
+      const s = await api('GET', '/api/admin/sample');
+      if (seq !== renderSeq) return;
+      sampleBox.hidden = !(s.soldiers || s.journals);
+      sampleBox.innerHTML = `
+        <h2>샘플 데이터 <small>장병 ${s.soldiers}명 · 일지 ${num(s.journals)}건</small></h2>
+        <p style="margin:0 0 12px;font-size:14px;color:var(--muted)">처음 방문한 장병의 이해를 돕기 위한 샘플입니다. 엑셀 명단에서는 자동으로 빠지며, 정식 운영 전에 삭제하세요. 삭제하면 다시 생성되지 않습니다.</p>
+        <button class="btn danger block" id="del-sample">샘플 데이터 모두 삭제</button>`;
+      sampleBox.querySelector('#del-sample').onclick = () => openModal(`
+        <h3>샘플 데이터 삭제</h3>
+        <p>샘플 장병 ${s.soldiers}명과 샘플 일지 ${num(s.journals)}건을 모두 삭제할까요?<br><small style="color:var(--muted)">실제 가입한 장병의 실제 일지는 지워지지 않습니다. 되돌릴 수 없습니다.</small></p>
+        <div class="buttons"><button class="btn secondary" data-cancel>취소</button><button class="btn" style="background:var(--red)" data-ok>삭제</button></div>
+      `, (m) => {
+        m.querySelector('[data-cancel]').onclick = closeModal;
+        const ok = m.querySelector('[data-ok]');
+        ok.onclick = () => submitting(ok, async () => {
+          const r = await api('DELETE', '/api/admin/sample', {});
+          closeModal();
+          toast(`샘플 장병 ${r.soldiers}명, 일지 ${r.journals}건을 삭제했습니다.`);
+          route();
+        });
+      });
+    }
+
     let searchSeq = 0;
     async function load(q) {
       const my = ++searchSeq;
       const { soldiers } = await api('GET', `/api/admin/soldiers?q=${encodeURIComponent(q)}`);
       if (my !== searchSeq || seq !== renderSeq) return;
-      list.innerHTML = `<h2>가입 장병 <small>${soldiers.length}명</small></h2>` + (soldiers.length ? soldiers.map((s) => `
+      const real = soldiers.filter((s) => !s.isSample).length;
+      list.innerHTML = `<h2>가입 장병 <small>${real}명${soldiers.length > real ? ` (+샘플 ${soldiers.length - real}명)` : ''}</small></h2>` + (soldiers.length ? soldiers.map((s) => `
         <div class="soldier-row">
-          <div><div><b>${esc(s.rank)} ${esc(s.name)}</b></div><div class="sub">${esc(s.phone)} · 가입 ${fmtDate(s.createdAt)}</div></div>
-          <button class="btn secondary small" data-reset="${s.id}" data-name="${esc(s.rank)} ${esc(s.name)}">비밀번호 초기화</button>
+          <div><div><b>${esc(s.rank)} ${esc(s.name)}</b>${s.isSample ? ' <span class="sample-tag">샘플</span>' : ''}</div><div class="sub">${esc(s.phone)} · 가입 ${fmtDate(s.createdAt)}</div></div>
+          ${s.isSample ? '' : `<button class="btn secondary small" data-reset="${s.id}" data-name="${esc(s.rank)} ${esc(s.name)}">비밀번호 초기화</button>`}
         </div>`).join('') : '<div class="empty">검색 결과가 없습니다.</div>');
       list.querySelectorAll('[data-reset]').forEach((b) => {
         b.onclick = () => confirmReset(Number(b.dataset.reset), b.dataset.name);
@@ -674,7 +857,50 @@
     }
     let t;
     root.querySelector('#q').addEventListener('input', (e) => { clearTimeout(t); t = setTimeout(() => load(e.target.value.trim()).catch(handleError), 250); });
-    await load('');
+    await Promise.all([load(''), loadSample()]);
+  }
+
+  // ── 공지 관리 ─────────────────────────────────────────────────
+  async function viewAdminNotices(seq) {
+    render(`${adminHeader('#/admin/notices')}<div class="loading">불러오는 중...</div>`);
+    const { notices } = await api('GET', '/api/notices');
+    if (seq !== renderSeq) return;
+    const root = render(`
+      ${adminHeader('#/admin/notices')}
+      <form class="card" id="notice-form">
+        <h2>새 공지 쓰기</h2>
+        <div class="field"><label for="nt">제목</label><input class="input" id="nt" name="title" maxlength="100" required></div>
+        <div class="field"><label for="nb">내용</label><textarea class="input" id="nb" name="body" maxlength="3000" required style="min-height:120px"></textarea></div>
+        <div class="field"><label class="check"><input type="checkbox" name="important" value="1"> <span>중요 공지 (메인 화면 맨 위에 표시)</span></label></div>
+        <button class="btn block" type="submit">공지 등록</button>
+      </form>
+      <section class="card">
+        <h2>등록된 공지 <small>${notices.length}건</small></h2>
+        ${notices.length ? notices.map((n) => `
+          <div class="soldier-row">
+            <div style="min-width:0"><div>${n.important ? '<span class="badge rejected">중요</span> ' : ''}<b>${esc(n.title)}</b></div><div class="sub">${fmtDate(n.createdAt)}</div></div>
+            <button class="btn danger small" data-del="${n.id}">삭제</button>
+          </div>`).join('') : '<div class="empty">공지가 없습니다.</div>'}
+      </section>
+    `);
+    const form = root.querySelector('#notice-form');
+    form.onsubmit = (e) => {
+      e.preventDefault();
+      const d = formData(form);
+      submitting(form.querySelector('button[type=submit]'), async () => {
+        await api('POST', '/api/admin/notices', { ...d, important: !!d.important });
+        toast('공지를 등록했습니다.');
+        route();
+      });
+    };
+    root.querySelectorAll('[data-del]').forEach((b) => {
+      b.onclick = () => submitting(b, async () => {
+        if (!confirm('이 공지를 삭제할까요?')) return;
+        await api('DELETE', `/api/admin/notices/${b.dataset.del}`, {});
+        toast('공지를 삭제했습니다.');
+        route();
+      });
+    });
   }
 
   function confirmReset(id, name) {
@@ -720,16 +946,20 @@
       if (!loggedIn) {
         me = null;
         if (hash === '#/signup') return viewSignup();
+        if (hash.startsWith('#/guide')) return viewGuide();
         if (hash !== '#/login') return go('#/login');
         return viewLogin();
       }
       if (isPublic || hash === '#/' || hash === '') return go(homeOf());
       if (hash === '#/password') return viewPassword();
+      if (hash.startsWith('#/guide')) return viewGuide();
+      if (hash === '#/notices') return await viewNotices(seq);
 
       if (me.role === 'admin') {
         if (hash === '#/admin') return await viewAdminPending(seq);
         if (hash === '#/admin/export') return await viewAdminExport(seq);
         if (hash === '#/admin/soldiers') return await viewAdminSoldiers(seq);
+        if (hash === '#/admin/notices') return await viewAdminNotices(seq);
         return go('#/admin');
       }
       if (hash === '#/home') return await viewHome(seq);
