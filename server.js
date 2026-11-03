@@ -1,4 +1,4 @@
-// 책읽는 장병 - API 서버 + 정적 파일 제공
+// 장병 북포인트 - API 서버 + 정적 파일 제공
 // 로컬: `npm start` (내장 PGlite), 운영: Vercel 서버리스 함수(api/index.js) + Supabase Postgres
 const path = require('node:path');
 const crypto = require('node:crypto');
@@ -678,7 +678,7 @@ module.exports = app;
 if (require.main === module) {
   const PORT = Number(process.env.PORT) || 3000;
   const server = app.listen(PORT, () => {
-    console.log(`책읽는 장병 서버 실행 중: http://localhost:${PORT}`);
+    console.log(`장병 북포인트 서버 실행 중: http://localhost:${PORT}`);
     ensureInit().catch((err) => console.error('[init] 초기화 실패:', err.message));
   });
 

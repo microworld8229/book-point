@@ -1,4 +1,4 @@
-// 책읽는 장병 - 모바일 웹 클라이언트 (해시 라우팅 SPA)
+// 장병 북포인트 - 모바일 웹 클라이언트 (해시 라우팅 SPA)
 (() => {
   const $app = document.getElementById('app');
   const $modal = document.getElementById('modal-root');
@@ -234,7 +234,7 @@
     const root = render(`
       <div class="hero webtoon">
         <div class="comic-wrap">${loginComic()}</div>
-        <h1 class="logo-title"><span>📖</span> 책읽는 장병</h1>
+        <h1 class="logo-title"><span>📖</span> 장병 북포인트</h1>
         <p>읽을수록 높아지는 <b>복무 의지</b>, 쌓일수록 늘어나는 <b>독서포인트</b></p>
       </div>
       <form class="card" id="login" autocomplete="on">
@@ -372,7 +372,7 @@
     const root = render(`
       ${topbar('이용 안내', { back })}
       <section class="hero-card guide-hero">
-        <p class="greet"><b>책읽는 장병</b>은</p>
+        <p class="greet"><b>장병 북포인트</b>는</p>
         <p class="tagline">부대 독서카페에서 읽은 책을 독서일지로 남기면, 경기도 "천권으로 독서포인트"와 연계해 지역화폐로 돌려받는 장병 독서 지원 서비스입니다.</p>
         ${heroArt()}
       </section>
@@ -520,7 +520,7 @@
   }
 
   async function viewHome(seq) {
-    render(`${topbar('책읽는 장병')}<div class="loading">불러오는 중...</div>`);
+    render(`${topbar('장병 북포인트')}<div class="loading">불러오는 중...</div>`);
     const d = await api('GET', '/api/dashboard');
     if (seq !== renderSeq) return;
     const [y, m] = d.month.split('-');
@@ -535,7 +535,7 @@
       '월말에 승인 명단이 지자체에 전달되면, 지자체 앱에서 지역화폐로 받아 외출·휴가 때 동네서점에서 새 책을 살 수 있어요.',
     ][stage];
     const root = render(`
-      ${topbar('책읽는 장병', { right: `<button class="link-btn" data-go="#/password">비밀번호</button><button class="link-btn" data-logout>로그아웃</button>` })}
+      ${topbar('장병 북포인트', { right: `<button class="link-btn" data-go="#/password">비밀번호</button><button class="link-btn" data-logout>로그아웃</button>` })}
       ${me.mustChangePw ? '<div class="notice warn">임시 비밀번호를 사용 중입니다. <a href="#/password">비밀번호 변경하기 ›</a></div>' : ''}
       ${d.notices.length ? `<div class="notice-banner">${d.notices.map((n, i) => `
         <button class="${i === 0 ? 'show' : ''}" data-notice="${n.id}">${n.important ? '<span class="badge rejected">중요</span>' : '<span class="badge pending">공지</span>'}

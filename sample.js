@@ -36,7 +36,7 @@ const CLOSERS = [
 const NOTICES = [
   {
     important: 1,
-    title: '책읽는 장병 시범 운영 안내',
+    title: '장병 북포인트 시범 운영 안내',
     body: '부대 독서카페(도서관)에서 책을 읽고 독서일지를 제출하면, 관리자 승인 후 1건당 100P가 적립 예정 포인트로 쌓입니다.\n승인된 실적은 매월 말 명단으로 정리해 경기도 "천권으로 독서포인트"에 전달되며, 지자체 앱에서 지역화폐로 전환됩니다.\n\n※ 현재 보이는 랭킹·현황에는 이해를 돕기 위한 샘플 장병 50명의 데이터가 포함되어 있으며, 정식 운영 전에 삭제됩니다.',
   },
   {
@@ -72,6 +72,8 @@ function dayBefore(today, offset) {
 }
 
 async function seedNotices(q) {
+  // 앱 이름 변경(책읽는 장병 → 장병 북포인트) 이전에 만들어진 기본 공지 제목도 바꾼다
+  await q.query("UPDATE notices SET title = replace(title, '책읽는 장병', '장병 북포인트') WHERE title LIKE '%책읽는 장병%'");
   if (await getSetting(q, 'notices_seeded')) return;
   const now = kstNow();
   await insertMany(q, 'notices', ['title', 'body', 'important', 'created_at'], [...NOTICES].reverse().map((n) => [n.title, n.body, n.important, now]));

@@ -1,7 +1,7 @@
 {
   "name": "book-point",
   "version": "1.0.0",
-  "description": "책읽는 장병 - 장병 독서활동 지역화폐 연계 도구 (MVP)",
+  "description": "장병 북포인트 - 장병 독서활동 지역화폐 연계 도구 (MVP)",
   "private": true,
   "main": "server.js",
   "scripts": {
