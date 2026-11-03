@@ -19,6 +19,8 @@
     "pg": "^8.23.1"
   },
   "devDependencies": {
-    "@electric-sql/pglite": "^0.5.14"
+    "@electric-sql/pglite": "^0.5.14",
+    "gifenc": "^1.0.3",
+    "pngjs": "^7.0.0"
   }
 }

@@ -3,45 +3,44 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Jua&display=swap">
 <style>
   * { box-sizing: border-box; margin: 0; }
-  body { width: 1280px; height: 720px; overflow: hidden; font-family: 'Jua', 'Malgun Gothic', sans-serif; color: #fff;
+  body { position: relative; width: 1280px; height: 720px; overflow: hidden; font-family: 'Jua', 'Malgun Gothic', sans-serif; color: #fff;
     background:
-      radial-gradient(ellipse 260px 140px at 8% 14%, rgba(0,0,0,.18), transparent 70%),
-      radial-gradient(ellipse 320px 160px at 46% 6%, rgba(160,150,100,.20), transparent 70%),
-      radial-gradient(ellipse 300px 150px at 30% 92%, rgba(0,0,0,.18), transparent 70%),
-      radial-gradient(ellipse 360px 150px at 88% 96%, rgba(160,150,100,.16), transparent 70%),
-      radial-gradient(ellipse 220px 120px at 60% 50%, rgba(0,0,0,.10), transparent 70%),
-      linear-gradient(150deg, #34401f 0%, #56663a 100%); }
-  .wrap { display: flex; align-items: center; height: 100%; padding: 0 44px 0 72px; gap: 40px; }
-  .left { flex: 0 0 620px; }
-  .badge { display: inline-block; padding: 8px 18px; border: 2px solid rgba(255,255,255,.55); border-radius: 999px; font-size: 22px; letter-spacing: .5px; }
-  h1 { margin-top: 26px; font-size: 92px; font-weight: 400; line-height: 1; letter-spacing: -2px; white-space: nowrap; text-shadow: 4px 4px 0 #1d1d1d; }
-  .tag { margin-top: 22px; font-size: 40px; color: #ffe08a; }
-  .steps { display: flex; align-items: center; gap: 8px; margin-top: 44px; font-size: 19px; }
-  .step { padding: 11px 15px; border-radius: 14px; background: rgba(255,255,255,.14); border: 2px solid rgba(255,255,255,.28); white-space: nowrap; }
-  .arrow { font-size: 22px; opacity: .8; }
-  .url { margin-top: 38px; font-size: 22px; opacity: .78; font-family: 'Malgun Gothic', sans-serif; }
-  .right { flex: 0 0 520px; }
-  .frame { padding: 12px 10px 8px; background: #fff; border: 4px solid #1d1d1d; border-radius: 22px; box-shadow: 10px 10px 0 #1d1d1d; transform: rotate(-2deg); }
+      radial-gradient(circle at 16% 18%, rgba(255,226,150,.95) 0%, rgba(255,190,100,.55) 22%, transparent 48%),
+      radial-gradient(ellipse 700px 380px at 78% 100%, rgba(110,40,12,.55), transparent 70%),
+      linear-gradient(165deg, #f2a24a 0%, #d96d2a 42%, #a8431b 74%, #6f2711 100%); }
+  .layer { position: absolute; inset: 0; pointer-events: none; }
+  .wrap { position: absolute; inset: 0; display: flex; align-items: center; padding: 0 44px 0 60px; gap: 26px; z-index: 2; }
+  .left { flex: 0 0 560px; }
+  .badge { display: inline-block; padding: 8px 18px; border-radius: 999px; background: rgba(70,25,8,.35); border: 2px solid rgba(255,240,210,.6); font-size: 22px; }
+  h1 { margin-top: 22px; font-size: 96px; font-weight: 400; line-height: 1; letter-spacing: -2px; white-space: nowrap; text-shadow: 5px 5px 0 #4a1c08; }
+  .tag { margin-top: 20px; font-size: 40px; color: #fff3c4; text-shadow: 2px 2px 0 rgba(74,28,8,.6); }
+  .steps { display: flex; flex-direction: column; gap: 12px; margin-top: 34px; font-size: 25px; }
+  .step { display: flex; align-items: center; gap: 14px; }
+  .num { display: grid; place-items: center; width: 40px; height: 40px; border-radius: 50%; background: #fff3c4; color: #8a3410; font-size: 22px; box-shadow: 2px 2px 0 #4a1c08; }
+  .url { margin-top: 30px; font-size: 21px; opacity: .85; font-family: 'Malgun Gothic', sans-serif; }
+  .right { flex: 1; display: flex; justify-content: center; }
+  .frame { width: 608px; padding: 12px 10px 8px; background: #fffaf0; border: 4px solid #2a1206; border-radius: 22px; box-shadow: 12px 12px 0 #3a1608; transform: rotate(-2deg); }
   .comic { display: block; width: 100%; height: auto; }
-  .comic .cm-t { font-family: 'Jua', sans-serif; font-size: 10px; fill: #1d1d1d; }
+  .comic .cm-t, .comic .cm-c { font-family: 'Jua', sans-serif; font-size: 10px; fill: #1d1d1d; }
   .comic .cm-g { font-family: 'Jua', sans-serif; font-size: 9px; fill: #1d1d1d; }
-  .comic .cm-c { font-family: 'Jua', sans-serif; font-size: 10px; fill: #1d1d1d; }
   .comic .cm-coin { font-family: 'Jua', sans-serif; fill: #8a6400; }
   .comic .cm-up { font-family: 'Jua', sans-serif; font-size: 15px; fill: #e63946; stroke: #1d1d1d; stroke-width: .8; text-anchor: middle; }
 </style></head>
-<body><div class="wrap">
-  <div class="left">
-    <div class="badge">📖 지상작전사령부 시범 운영</div>
-    <h1>장병 북포인트</h1>
-    <p class="tag">읽은 책이 지역화폐가 됩니다</p>
-    <div class="steps">
-      <span class="step">독서카페에서 읽고</span><span class="arrow">→</span>
-      <span class="step">일지 제출</span><span class="arrow">→</span>
-      <span class="step">지역화폐로 새 책</span>
+<body>
+  <svg class="layer" id="back" viewBox="0 0 1280 720" style="z-index:1"></svg>
+  <div class="wrap">
+    <div class="left">
+      <div class="badge">🍁 독서의 계절 · 지상작전사령부 시범 운영</div>
+      <h1>장병 북포인트</h1>
+      <p class="tag">읽은 책이 지역화폐가 됩니다</p>
+      <div class="steps">
+        <div class="step"><span class="num">1</span>병영 독서카페에서 읽고</div>
+        <div class="step"><span class="num">2</span>휴대폰으로 독서일지 제출</div>
+        <div class="step"><span class="num">3</span>지역화폐로 새 책 구매</div>
+      </div>
+      <p class="url">book-point-beta.vercel.app</p>
     </div>
-    <p class="url">book-point-beta.vercel.app</p>
-  </div>
-  <div class="right"><div class="frame">
+    <div class="right"><div class="frame">
     <svg class="comic" viewBox="0 0 360 294" role="img" aria-label="세 컷 웹툰: 장병이 독서카페에서 책에 빠지고, 독서포인트가 지역화폐로 바뀌어, 외출 날 동네서점에서 지역화폐로 새 책을 사며 복무 의지가 최고로 높아지는 이야기">
       <defs>
         <pattern id="camo2" width="8" height="8" patternUnits="userSpaceOnUse">
@@ -146,4 +145,34 @@
       <rect x="266" y="264" width="80" height="13" rx="6.5" fill="#2a9d8f"/>
       <text x="306" y="274.5" text-anchor="middle" class="cm-g">복무 의지 MAX</text></g><rect x="6" y="150" width="348" height="136" rx="5" fill="none" stroke="#1d1d1d" stroke-width="2.6"/></g>
     </svg></div></div>
-</div></body></html>
+  </div>
+  <svg class="layer" id="front" viewBox="0 0 1280 720" style="z-index:3"></svg>
+<script>
+  // 프레임 번호(?f=N)에 따라 낙엽 위치를 계산한다. 모든 움직임이 정수 주기라 마지막 프레임이 첫 프레임으로 자연스럽게 이어진다.
+  const N = 40, f = Number(new URLSearchParams(location.search).get('f') || 7), p = f / N;
+  let s = 20261103;
+  const rnd = () => ((s = (s * 1103515245 + 12345) % 2147483648) / 2147483648);
+  const maple = 'M0,-20 L4,-9 L12,-14 L10,-4 L20,-4 L13,3 L16,10 L6,8 L2,18 L0,10 L-2,18 L-6,8 L-16,10 L-13,3 L-20,-4 L-10,-4 L-12,-14 L-4,-9 Z';
+  const ginkgo = 'M0,14 C-4,6 -18,-2 -16,-12 C-8,-18 8,-18 16,-12 C18,-2 4,6 0,14 Z M0,-12 L0,-4';
+  const colors = ['#c92a2a', '#e8590c', '#f08c00', '#d9480f', '#f59f00', '#a0522d', '#ffd43b'];
+  const span = 720 + 120;
+  const leaf = (i, front) => {
+    const x0 = rnd() * 1280, y0 = rnd() * span, sway = 18 + rnd() * 40, ph = rnd(), size = (front ? 1.3 : 0.7) + rnd() * 0.7;
+    const fall = 1 + Math.floor(rnd() * 2), wob = 1 + Math.floor(rnd() * 2), spin = (rnd() < 0.5 ? -1 : 1) * (1 + Math.floor(rnd() * 2));
+    const y = ((y0 + fall * p * span) % span) - 60;
+    const x = x0 + sway * Math.sin(2 * Math.PI * (wob * p + ph));
+    const r = rnd() * 360 + spin * 360 * p;
+    const shape = rnd() < 0.72 ? maple : ginkgo, c = colors[Math.floor(rnd() * colors.length)];
+    const stem = shape === maple ? '<path d="M0,10 L0,24" stroke="' + c + '" stroke-width="2" stroke-linecap="round"/>' : '';
+    return '<g transform="translate(' + x.toFixed(1) + ' ' + y.toFixed(1) + ') rotate(' + r.toFixed(1) + ') scale(' + size.toFixed(2) + ')" opacity="' + (front ? 0.95 : 0.85) + '">'
+      + '<path d="' + shape + '" fill="' + c + '" stroke="rgba(60,20,5,.35)" stroke-width="1"/>' + stem + '</g>';
+  };
+  // 땅에 쌓인 낙엽 (움직이지 않음)
+  const pile = Array.from({ length: 46 }, () => {
+    const x = rnd() * 1280, y = 720 - 6 - rnd() * 40, r = rnd() * 360, c = colors[Math.floor(rnd() * colors.length)], sc = 0.8 + rnd() * 0.6;
+    return '<g transform="translate(' + x.toFixed(1) + ' ' + y.toFixed(1) + ') rotate(' + r.toFixed(1) + ') scale(' + sc.toFixed(2) + ')"><path d="' + maple + '" fill="' + c + '" opacity=".9"/></g>';
+  }).join('');
+  document.getElementById('back').innerHTML = pile + Array.from({ length: 26 }, (_, i) => leaf(i, false)).join('');
+  document.getElementById('front').innerHTML = Array.from({ length: 6 }, (_, i) => leaf(i, true)).join('');
+</script>
+</body></html>
