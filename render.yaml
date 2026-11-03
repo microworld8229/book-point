@@ -1,0 +1,22 @@
+# Render Blueprint — GitHub 저장소를 연결하면 이 설정대로 서비스가 만들어진다.
+# 영구 디스크가 필요하므로 무료(Free) 플랜은 사용할 수 없다 (Starter 이상).
+services:
+  - type: web
+    name: book-point
+    runtime: docker
+    plan: starter
+    region: singapore
+    healthCheckPath: /healthz
+    disk:
+      name: data
+      mountPath: /data
+      sizeGB: 1
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: DATA_DIR
+        value: /data
+      - key: SESSION_SECRET
+        generateValue: true
+      - key: ADMIN_PASSWORD
+        sync: false # 배포 화면에서 직접 입력 (최초 관리자 비밀번호)
